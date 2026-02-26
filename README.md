@@ -11,7 +11,13 @@ Day 2: Database Integration
 - Connection pooling using `mysql2`
 - Database config separated in `config/db.js`
 - Server starts only after successful DB connection
-
+Day 3: create users Table
+- Designing a proper users table
+- Applying database constraints
+- Understanding UNIQUE and ENUM
+- Creating the User Model
+- Connecting application logic to MySQL
+ 
  Project Structure
 taskflow-api/
 │
@@ -21,7 +27,8 @@ taskflow-api/
 │ │
 │ ├── controllers/ # Request/response logic
 │ ├── services/ # Business logic layer
-│ ├── models/ # Database queries layer
+│ ├── models/# Database queries layer
+| |   └── user.model.js
 │ ├── routes/ # API route definitions
 │ ├── middlewares/ # Custom middlewares
 │ ├── utils/ # Helper utilities
@@ -29,7 +36,7 @@ taskflow-api/
 │ ├── app.js # Express app configuration
 │ └── server.js # Application entry point
 │
-├── .env # Environment variables (not committed)
+├── .env # Environment variables
 ├── .gitignore
 ├── package.json
 └── README.md
