@@ -1,11 +1,16 @@
-const express  = require('express');
-
+const express = require('express');
 const app = express();
 
+// Middleware
 app.use(express.json());
 
-app.use ('/api/v1',(req,res) => {
-    res.json({message: "task flow api running successfully"});
+// Routes
+const userRoutes = require('./routes/user.routes'); // Make sure the filename matches exactly
+app.use('/api/v1/users', userRoutes);
+
+// Optional Health Check
+app.get('/api/v1/health', (req, res) => {
+    res.json({ message: "Server is healthy" });
 });
 
 module.exports = app;
