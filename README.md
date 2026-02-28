@@ -33,7 +33,11 @@
 - Connect to MySQL database using connection pooling.
 - Add debugging logs to monitor requests.
 ---
-
+#### Day 5:Input validation(use joi)
+- Valid email format
+- Minimum password length
+- Restricted role values
+- Clean separation of concerns using middleware
 ## Project Structure
 
 ```text
@@ -42,7 +46,6 @@ taskflow-api/
 ├── src/
 │   ├── config/
 │   │   └── db.js            # MySQL connection pool
-│   │
 │   ├── controllers/# Request/response logic
 |   |    └── user.controller.js
 │   ├── services/            # Business logic layer
@@ -52,7 +55,8 @@ taskflow-api/
 |   |    └── user.routes.js
 │   ├── middlewares/         # Custom middlewares
 │   ├── utils/               # Helper utilities
-│   │
+│   |── validators/          # validate user
+|   |   └── user.validator.js
 │   ├── app.js               # Express app configuration
 │   └── server.js            # Application entry point
 │
