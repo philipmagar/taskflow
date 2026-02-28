@@ -1,9 +1,6 @@
 const User = require("../models/user.model");
 
 exports.createUser = async (req, res) => {
-    console.log("🔥 CONTROLLER HIT 🔥");
-    console.log("Request Body:", req.body);
-
     try {
         const { email, password, role } = req.body;
 
