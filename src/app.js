@@ -13,4 +13,8 @@ app.get('/api/v1/health', (req, res) => {
     res.json({ message: "Server is healthy" });
 });
 
+// Global Error Handler
+const globalErrorHandler = require('./middlewares/error.middleware');
+app.use(globalErrorHandler);
+
 module.exports = app;
