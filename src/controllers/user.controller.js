@@ -1,22 +1,18 @@
+const e = require("express");
 const User = require("../models/user.model");
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 
-exports.createUser = async (req, res) => {
-    try {
-        const { email, password, role } = req.body;
-
-        const existingUser = await User.findByEmail(email);
-        if (existingUser) {
-            return res.status(400).json({ message: "Email already exists" });
-        }
-
-        const result = await User.create(email, password, role);
-
-        res.status(201).json({
-            message: "User created successfully",
-            userId: result.insertId,
-        });
-    } catch (error) {
-        console.error("Error in controller:", error);
-        res.status(500).json({ message: "Server error", error });
+exports.createUser = catchAsync(async (req, res,next) => {
+    const {email,password,role} = req.body;
+    const existingUser = await User.findByEmail(email);
+    if(existingUser){
+        return next(new AppError("Email already in use",400));
     }
-};
+    const result = await User.create({email,password,role});
+    res.status(201).json({
+        status: "success",
+        message: "User created successfully",
+        userId:result.insertId,
+    });
+});
