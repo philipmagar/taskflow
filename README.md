@@ -32,12 +32,21 @@
 - Add User model with create and findByEmail methods.
 - Connect to MySQL database using connection pooling.
 - Add debugging logs to monitor requests.
----
+
 #### Day 5:Input validation(use joi)
 - Valid email format
 - Minimum password length
 - Restricted role values
 - Clean separation of concerns using middleware
+
+#### Day 6: User Authentication & Error Handling
+
+- Removed try/catch duplication in controllers
+- Implemented centralized error handling with a custom AppError class
+- Added an async wrapper (catchAsync) to handle promise rejections
+- Added Nodemon for auto-restarting server during development
+- Tested structured error responses in Thunder Client
+---
 ## Project Structure
 
 ```text
