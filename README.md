@@ -27,13 +27,15 @@
 - Creating the User Model
 - Connecting application logic to MySQL
 
-#### Day 4:create controllers and models 
+#### Day 4:create controllers and models
+
 - Implement POST /api/v1/users endpoint.
 - Add User model with create and findByEmail methods.
 - Connect to MySQL database using connection pooling.
 - Add debugging logs to monitor requests.
 
 #### Day 5:Input validation(use joi)
+
 - Valid email format
 - Minimum password length
 - Restricted role values
@@ -46,7 +48,16 @@
 - Added an async wrapper (catchAsync) to handle promise rejections
 - Added Nodemon for auto-restarting server during development
 - Tested structured error responses in Thunder Client
+
+#### Day 7: Input Validation with Express Validator
+
+- Switched from Joi to `express-validator` for more seamless validation within Express
+- Integrated validation error responses with the centralized `AppError` class
+- Created a reusable validation middleware for route-level validation
+- Enhanced error reporting to provide specific feedback for invalid fields
+
 ---
+
 ## Project Structure
 
 ```text
@@ -63,9 +74,13 @@ taskflow-api/
 │   ├── routes/              # API route definitions
 |   |    └── user.routes.js
 │   ├── middlewares/         # Custom middlewares
+│   │   ├── error.middleware.js
+│   │   └── validation.middleware.js
 │   ├── utils/               # Helper utilities
-│   |── validators/          # validate user
-|   |   └── user.validator.js
+│   │   ├── appError.js
+│   │   └── catchAsync.js
+│   ├── validators/          # validate user
+│   │   └── user.validator.js
 │   ├── app.js               # Express app configuration
 │   └── server.js            # Application entry point
 │
