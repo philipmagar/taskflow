@@ -9,7 +9,7 @@ exports.createUser = catchAsync(async (req, res,next) => {
     if(existingUser){
         return next(new AppError("Email already in use",400));
     }
-    const result = await User.create({email,password,role});
+    const result = await User.create(email,password,role);
     res.status(201).json({
         status: "success",
         message: "User created successfully",
