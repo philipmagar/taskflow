@@ -56,6 +56,11 @@
 - Created a reusable validation middleware for route-level validation
 - Enhanced error reporting to provide specific feedback for invalid fields
 
+#### Day 8: Debugging and request logging (morgan)
+- Add request logging
+- catch unhandled crashes
+- improve error visibility
+- learn to debug
 ---
 
 ## Project Structure
