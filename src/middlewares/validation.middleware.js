@@ -3,8 +3,7 @@ const AppError = require('../utils/appError');
 
 exports.validate = [
     body('email').isEmail().withMessage('Please provide a valid email address'),
-    body('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),    
-    body('role').isIn(['admin', 'member']).withMessage('Role must be either admin or member'),
+    body('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
     (req, res, next) => {
         const errors = validationResult(req);
         if(!errors.isEmpty()){
