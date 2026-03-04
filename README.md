@@ -61,7 +61,13 @@
 - catch unhandled crashes
 - improve error visibility
 - learn to debug
+#### Day 9: Authentication and Role Based Access Control (RBAC)
+- secure password hashing
+- stateless authentication
+- Role-based access control
+- protected API endpoints 
 ---
+
 
 ## Project Structure
 
@@ -72,7 +78,8 @@ taskflow-api/
 │   ├── config/
 │   │   └── db.js            # MySQL connection pool
 │   ├── controllers/# Request/response logic
-|   |    └── user.controller.js
+|   |    ├── user.controller.js
+|   |    └── auth.controller.js
 │   ├── services/            # Business logic layer
 │   ├── models/              # Database queries layer
 │   │   └── user.model.js
@@ -80,7 +87,9 @@ taskflow-api/
 |   |    └── user.routes.js
 │   ├── middlewares/         # Custom middlewares
 │   │   ├── error.middleware.js
-│   │   └── validation.middleware.js
+│   │   ├──validation.middleware.js
+|   |   ├──auth.middleware.js
+|   |   └──validate.middleware.js
 │   ├── utils/               # Helper utilities
 │   │   ├── appError.js
 │   │   └── catchAsync.js
