@@ -1,6 +1,6 @@
 const express = require('express');
-const app = express();
 const morgan = require('morgan');
+const app = express();
 //morgan
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
@@ -9,13 +9,10 @@ if (process.env.NODE_ENV === 'development'){
 app.use(express.json());
 
 // Routes
-const userRoutes = require('./routes/user.routes'); // Make sure the filename matches exactly
+const userRoutes = require('./routes/user.routes');
+const authRoutes = require('./routes/auth.routes');
 app.use('/api/v1/users', userRoutes);
-
-// Optional Health Check
-app.get('/api/v1/health', (req, res) => {
-    res.json({ message: "Server is healthy" });
-});
+app.use('/api/v1/auth', authRoutes);  
 
 // Global Error Handler
 const globalErrorHandler = require('./middlewares/error.middleware');

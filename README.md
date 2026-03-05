@@ -66,6 +66,11 @@
 - stateless authentication
 - Role-based access control
 - protected API endpoints 
+#### Day 10 : Login(JWT authentication and debugging )
+- Login Endpoint
+- Env varaibles seetup
+- password Hashing 
+
 ---
 
 
