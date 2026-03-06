@@ -1,8 +1,7 @@
-const e = require("express");
 const User = require("../models/user.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const bycrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 exports.createUser = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
     const existingUser = await User.findByEmail(email);     
@@ -18,7 +17,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
         status: 'success',
         data: {
             userId: result.insertId,
-            email,
+            email : email,
             role : "member"
         }
     });

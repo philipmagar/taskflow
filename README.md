@@ -70,7 +70,11 @@
 - Login Endpoint
 - Env varaibles seetup
 - password Hashing 
-
+#### Day 11 :
+- Automatic role assignment 
+- Admin only route testing 
+- JWT verification testing 
+- Hide password 
 ---
 
 
