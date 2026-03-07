@@ -11,9 +11,10 @@ app.use(express.json());
 // Routes
 const userRoutes = require('./routes/user.routes');
 const authRoutes = require('./routes/auth.routes');
+const taskRoutes = require("./routes/task.routes");
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/auth', authRoutes);  
-
+app.use("/api/v1/tasks", taskRoutes);
 // Global Error Handler
 const globalErrorHandler = require('./middlewares/error.middleware');
 app.use(globalErrorHandler);

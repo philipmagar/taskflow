@@ -76,7 +76,13 @@
 - JWT verification testing 
 - Hide password 
 ---
+#### Day 12: Task Creation System
 
+- Designed tasks table with foreign key relationship to users
+- Implemented Task Model with parameterized queries
+- Created Task Controller for task creation
+- Added protected route to allow only authenticated users to create tasks
+- Connected tasks to users using JWT authentication
 
 ## Project Structure
 
