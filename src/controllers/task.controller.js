@@ -19,3 +19,13 @@ exports.createTask = catchAsync(async (req, res, next) => {
     });
 
 });
+
+exports.getTasks = catchAsync(async (req, res, next) => {
+
+    const tasks = await Task.getTasksByUserId(req.user.id);
+    res.status(200).json({
+        status: "success",
+        results: tasks.length,
+        data: tasks
+    });     
+});
