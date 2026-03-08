@@ -83,7 +83,7 @@
 - Added protected route to allow only authenticated users to create tasks
 - Connected tasks to users using JWT authentication
 
-Day 13 – Task Retrieval
+#### Day 13 – Task Retrieval
 
 - Implemented GET /tasks endpoint
 - Users can retrieve only their own tasks
@@ -103,7 +103,8 @@ taskflow-api/
 |   |    └── auth.controller.js
 │   ├── services/            # Business logic layer
 │   ├── models/              # Database queries layer
-│   │   └── user.model.js
+|   |   ├── user.model.js
+│   │   └── task.model.js
 │   ├── routes/              # API route definitions
 |   |    └── user.routes.js
 │   ├── middlewares/         # Custom middlewares
