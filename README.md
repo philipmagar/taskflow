@@ -75,7 +75,6 @@
 - Admin only route testing 
 - JWT verification testing 
 - Hide password 
----
 #### Day 12: Task Creation System
 
 - Designed tasks table with foreign key relationship to users
@@ -84,6 +83,13 @@
 - Added protected route to allow only authenticated users to create tasks
 - Connected tasks to users using JWT authentication
 
+Day 13 – Task Retrieval
+
+- Implemented GET /tasks endpoint
+- Users can retrieve only their own tasks
+- Added filtering using user_id
+- Secured endpoint with JWT authentication
+-------
 ## Project Structure
 
 ```text
