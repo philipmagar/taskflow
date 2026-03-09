@@ -29,3 +29,24 @@ exports.getTasks = catchAsync(async (req, res, next) => {
         data: tasks
     });     
 });
+
+exports.updateTask = catchAsync(async (req, res, next) => {  
+    const taskId = req.params.id;
+    const task = await Task.getTaskById(taskId);
+    if (!task) {
+        return next(new AppError("Task not found", 404));
+    } 
+    if (task.user_id !== req.user.id) {
+        return next(new AppError("You do not have permission to update this task", 403));
+    }
+    const { title, description } = req.body;
+
+    await Task.updateTask(taskId,
+        title || task.title,
+        description || task.description),
+        status || 200,
+        res.json({
+            status: "success",
+            message: "Task updated successfully"
+        });
+});
