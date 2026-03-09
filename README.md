@@ -89,6 +89,13 @@
 - Users can retrieve only their own tasks
 - Added filtering using user_id
 - Secured endpoint with JWT authentication
+
+##### Day 14 – Update Task Endpoint
+
+- Implemented PATCH /tasks/:id
+- Added authorization check to ensure users update only their own tasks
+- Added task lookup before update
+- Implemented safe update logic with fallback values
 -------
 ## Project Structure
 

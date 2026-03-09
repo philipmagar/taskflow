@@ -10,3 +10,13 @@ exports.getTasksByUserId = async (userId) => {
     const [rows] = await pool.query('SELECT * FROM tasks WHERE user_id = ?', [userId]);
     return rows;
 };
+
+exports.getTaskById = async (taskId) => {
+    const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ?', [taskId]);
+    return rows[0];
+};
+exports.updateTask = async (taskId, title, description) => {
+    const [result] = await pool.query('UPDATE tasks SET title = ?, description = ? WHERE id = ?',
+        [title, description, taskId]);
+    return result;
+};
