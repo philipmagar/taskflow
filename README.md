@@ -96,6 +96,12 @@
 - Added authorization check to ensure users update only their own tasks
 - Added task lookup before update
 - Implemented safe update logic with fallback values
+##### Day 15 – Delete Task Endpoint
+
+- Implemented DELETE /tasks/:id
+- Added authorization check to ensure users delete only their own tasks
+- Added task existence check before deletion
+- Completed CRUD operations for Task API
 -------
 ## Project Structure
 
