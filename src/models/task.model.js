@@ -20,3 +20,7 @@ exports.updateTask = async (taskId, title, description) => {
         [title, description, taskId]);
     return result;
 };
+exports.deleteTask = async (taskId) => {
+    const [result] = await pool.query('DELETE FROM tasks WHERE id = ?', [taskId]);
+    return result;
+};
