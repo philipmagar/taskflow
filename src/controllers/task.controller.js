@@ -50,3 +50,19 @@ exports.updateTask = catchAsync(async (req, res, next) => {
             message: "Task updated successfully"
         });
 });
+
+exports.deleteTask = catchAsync(async (req, res, next) => { 
+    const taskId = req.params.id;
+    const task = await Task.getTaskById(taskId);
+    if (!task) {
+        return next(new AppError("Task not found", 404));
+    }
+    if (task.user_id !== req.user.id) {
+        return next(new AppError("You do not have permission to delete this task", 403));
+    }
+    await Task.deleteTask(taskId);
+    res.status(200).json({
+        status: "success",
+        message: "Task deleted successfully"
+    });
+});
