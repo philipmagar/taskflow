@@ -19,7 +19,8 @@ exports.createTask = catchAsync(async (req, res, next) => {
 });
 
 exports.getTasks = catchAsync(async (req, res, next) => {
-  const tasks = await Task.getTasksByUserId(req.user.id);
+const {status} = req.query;
+const tasks = await Task.getTasksByUserId(req.user.id, status);
   res.status(200).json({
     status: "success",
     results: tasks.length,

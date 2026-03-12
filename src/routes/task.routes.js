@@ -7,6 +7,7 @@ const {
   getTaskById,
 } = require("../controllers/task.controller");
 
+const { protect } = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 router.post("/", protect, createTask);
