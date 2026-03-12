@@ -6,8 +6,16 @@ exports.createTask = async (title, description, userId) => {
     return result;
 };
 
-exports.getTasksByUserId = async (userId) => {
-    const [rows] = await pool.query('SELECT * FROM tasks WHERE user_id = ?', [userId]);
+exports.getTasksByUserId = async (userId, status) => {
+    let query = 'SELECT * FROM tasks WHERE user_id = ?';
+    const params = [userId];
+
+    if (status) {
+        query += ' AND status = ?';
+        params.push(status);
+    }
+
+    const [rows] = await pool.query(query, params);
     return rows;
 };
 
