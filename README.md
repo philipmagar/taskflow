@@ -102,6 +102,11 @@
 - Added authorization check to ensure users delete only their own tasks
 - Added task existence check before deletion
 - Completed CRUD operations for Task API
+
+##### Day 15 –Task filtering
+- Added filtered tasks
+- update get all task function
+#### Day 16 - 
 -------
 ## Project Structure
 
