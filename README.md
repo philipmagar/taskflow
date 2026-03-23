@@ -2,8 +2,6 @@
 
 ## Project Status
 
-### ✅ Week 1
-
 #### Day 1: Backend Foundation Setup
 
 - Node.js + Express installed
@@ -103,11 +101,61 @@
 - Added task existence check before deletion
 - Completed CRUD operations for Task API
 
-##### Day 15 –Task filtering
-- Added filtered tasks
-- update get all task function
-#### Day 16 - 
--------
+##### Day 14: Update Task
+- Implemented PATCH /tasks/:id
+- Ownership check
+- Safe update logic
+
+##### Day 15: Delete Task
+- Implemented DELETE /tasks/:id
+- Ownership + existence check
+- Completed Task CRUD API
+
+##### Day 16: Get Single Task
+- Implemented GET /tasks/:id
+- Ownership authorization check
+- Secure data access (user isolation)
+
+##### Day 17: Task Filtering
+- Added query filtering (status)
+- Endpoint: GET /api/v1/tasks?status=pending
+- Dynamic SQL queries
+- Secure parameterized queries
+
+##### Day 18: Sorting
+- Added sorting support
+- Examples:
+?sort=created_at
+?sort=-created_at
+- Implemented ORDER BY ASC/DESC
+
+##### Day 19: Pagination
+- Added pagination support
+- Query parameters:
+- ?page=1&limit=10
+- Implemented:limit,offset
+
+##### Day 20: Combined Query System
+- Unified filtering + sorting + pagination
+- Example:GET /tasks?status=pending&sort=-created_at&page=1&limit=5
+-Built dynamic query engine
+
+##### Day 21: Task Status Update
+- Added endpoint:
+- PATCH /tasks/:id/status
+- Update only task status
+- Authorization enforced
+
+##### Day 22: Security — HTTP Headers
+- Installed and configured helmet
+- Protected against:XSS,clickjacking,MIME sniffing
+
+##### Day 23: Security — Rate Limiting & CORS
+- Added express-rate-limit
+- Prevented brute-force attacks
+- Added cors configuration
+- Restricted API access origins
+- Added request body size limit (10kb)
 ## Project Structure
 
 ```text
