@@ -1,6 +1,7 @@
 const Task = require("../models/task.model");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const logger = require("../utils/logger");
 
 exports.createTask = catchAsync(async (req, res, next) => {
   const { title, description } = req.body;
@@ -11,6 +12,10 @@ exports.createTask = catchAsync(async (req, res, next) => {
 
   const result = await Task.createTask(title, description, req.user.id);
 
+  logger.info("Task created successfully with ID", {
+    UserId: req.user.id,
+    taskId: result.insertId,
+  });
   res.status(201).json({
     status: "success",
     message: "Task created successfully",
@@ -19,8 +24,8 @@ exports.createTask = catchAsync(async (req, res, next) => {
 });
 
 exports.getTasks = catchAsync(async (req, res, next) => {
-const {status} = req.query;
-const tasks = await Task.getTasksByUserId(req.user.id, status);
+  const { status } = req.query;
+  const tasks = await Task.getTasksByUserId(req.user.id, status);
   res.status(200).json({
     status: "success",
     results: tasks.length,

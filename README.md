@@ -1,6 +1,128 @@
-# TaskFlow API
+#  TaskFlow API
 
-## Project Status
+A robust, secure, and scalable Task Management API built with Node.js, Express, and MySQL. TaskFlow follows a Clean Architecture to provide a seamless experience for user authentication and task CRUD operations with advanced querying capabilities.
+
+---
+
+##  Key Features
+
+- ** Secure Authentication**: JWT-based stateless authentication with password hashing (bcryptjs).
+- ** RBAC (Role-Based Access Control)**: Restrict access to specific routes based on user roles (e.g., Admin only routes).
+- ** Advanced Task Management**: Complete CRUD functionality with ownership protection.
+- ** Powerful Query Engine**:
+  - **Filtering**: Filter tasks by status (e.g., `?status=pending`).
+  - **Sorting**: Multi-column sorting support (e.g., `?sort=-created_at`).
+  - **Pagination**: Efficient data retrieval with `page` and `limit`.
+- ** Enterprise Security**:
+  - **Helmet**: Secure HTTP headers to prevent XSS and clickjacking.
+  - **Rate Limiting**: Brute-force protection for all API endpoints.
+  - **CORS**: Restricted origins for production security.
+  - **Input Validation**: Strict validation using `express-validator`.
+- ** Error Handling**: Centralized global error handling with custom `AppError` class and async wrappers.
+
+---
+
+##  Tech Stack
+
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MySQL (using `mysql2` connection pooling)
+- **Validation**: Express Validator
+- **Logging**: Morgan & Winston
+- **Environment**: Dotenv
+
+---
+
+##  Installation & Setup
+
+1. **Clone the repository**:
+
+   ```bash
+   git clone https://github.com/philipmagar/taskflow.git
+   cd taskflow-api
+   ```
+
+2. **Install dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**:
+   Create a `.env` file in the root directory and add:
+
+   ```env
+   PORT=5000
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=your_password
+   DB_NAME=taskflow_db
+   JWT_SECRET=your_super_secret_key
+   JWT_EXPIRES_IN=90d
+   NODE_ENV=development
+   ```
+
+4. **Database Setup**:
+   - Ensure MySQL is running (XAMPP/Docker).
+   - Create a database named `taskflow_db`.
+   - The tables will be synchronized based on the models (Users & Tasks).
+
+5. **Run the server**:
+
+   ```bash
+   # Development
+   npm run dev
+
+   # Production
+   npm start
+   ```
+
+---
+
+##  API Endpoints (v1)
+
+### Auth & Users
+
+| Method | Endpoint                | Description                   |
+| :----- | :---------------------- | :---------------------------- |
+| POST   | `/api/v1/auth/register` | Register a new user           |
+| POST   | `/api/v1/auth/login`    | Login and receive JWT         |
+| POST   | `/api/v1/users`         | Admin: Create a user manually |
+
+### Tasks (Protected)
+
+| Method | Endpoint                   | Description                                    |
+| :----- | :------------------------- | :--------------------------------------------- |
+| GET    | `/api/v1/tasks`            | Get all user tasks (supports sort/filter/page) |
+| POST   | `/api/v1/tasks`            | Create a new task                              |
+| GET    | `/api/v1/tasks/:id`        | Get single task details                        |
+| PATCH  | `/api/v1/tasks/:id`        | Update task title/description                  |
+| PATCH  | `/api/v1/tasks/:id/status` | Update task status specifically                |
+| DELETE | `/api/v1/tasks/:id`        | Delete a task                                  |
+
+---
+
+##  Project Structure
+
+```text
+taskflow-api/
+├── src/
+│   ├── config/          # Database & app configurations
+│   ├── controllers/     # Request handling logic
+│   ├── middlewares/     # Auth, Validation, Error middlewares
+│   ├── models/          # MySQL database queries
+│   ├── routes/          # API endpoint definitions
+│   ├── utils/           # Shared utilities (AppError, catchAsync)
+│   ├── validators/      # Schema-based validations
+│   ├── app.js           # App configuration
+│   └── server.js        # Entry point
+├── .env                 # Environment variables
+└── package.json         # Dependencies & Scripts
+```
+
+---
+
+##  Development Timeline
 
 #### Day 1: Backend Foundation Setup
 
@@ -25,14 +147,13 @@
 - Creating the User Model
 - Connecting application logic to MySQL
 
-#### Day 4:create controllers and models
+#### Day 4: Create Controllers and Models
 
-- Implement POST /api/v1/users endpoint.
-- Add User model with create and findByEmail methods.
-- Connect to MySQL database using connection pooling.
-- Add debugging logs to monitor requests.
+- Implement `POST /api/v1/users` endpoint
+- Add User model with `create` and `findByEmail` methods
+- Connect to MySQL database using connection pooling
 
-#### Day 5:Input validation(use joi)
+#### Day 5: Input Validation (Joi)
 
 - Valid email format
 - Minimum password length
@@ -41,153 +162,63 @@
 
 #### Day 6: User Authentication & Error Handling
 
-- Removed try/catch duplication in controllers
-- Implemented centralized error handling with a custom AppError class
-- Added an async wrapper (catchAsync) to handle promise rejections
-- Added Nodemon for auto-restarting server during development
-- Tested structured error responses in Thunder Client
+- Implemented centralized error handling with `AppError` class
+- Added async wrapper (`catchAsync`)
+- Added Nodemon for development
+- Tested responses in Thunder Client
 
 #### Day 7: Input Validation with Express Validator
 
-- Switched from Joi to `express-validator` for more seamless validation within Express
-- Integrated validation error responses with the centralized `AppError` class
-- Created a reusable validation middleware for route-level validation
-- Enhanced error reporting to provide specific feedback for invalid fields
+- Switched from Joi to `express-validator`
+- Integrated validation error responses with `AppError`
+- Created reusable validation middleware
 
-#### Day 8: Debugging and request logging (morgan)
-- Add request logging
-- catch unhandled crashes
-- improve error visibility
-- learn to debug
-#### Day 9: Authentication and Role Based Access Control (RBAC)
-- secure password hashing
-- stateless authentication
-- Role-based access control
-- protected API endpoints 
-#### Day 10 : Login(JWT authentication and debugging )
-- Login Endpoint
-- Env varaibles seetup
-- password Hashing 
-#### Day 11 :
-- Automatic role assignment 
-- Admin only route testing 
-- JWT verification testing 
-- Hide password 
-#### Day 12: Task Creation System
+#### Day 8: Debugging and Request Logging
 
-- Designed tasks table with foreign key relationship to users
-- Implemented Task Model with parameterized queries
-- Created Task Controller for task creation
-- Added protected route to allow only authenticated users to create tasks
-- Connected tasks to users using JWT authentication
+- Add request logging with `morgan`
+- Handle unhandled crashes
+- Improve error visibility
 
-#### Day 13 – Task Retrieval
+#### Day 9-11: Auth & Role Based Access Control (RBAC)
 
-- Implemented GET /tasks endpoint
-- Users can retrieve only their own tasks
-- Added filtering using user_id
-- Secured endpoint with JWT authentication
+- Secure password hashing with bcryptjs
+- Stateless JWT authentication
+- Implemented `protect` and `restrictTo` middlewares
+- Admin-only route testing
 
-##### Day 14 – Update Task Endpoint
+#### Day 12-16: Task CRUD System
 
-- Implemented PATCH /tasks/:id
-- Added authorization check to ensure users update only their own tasks
-- Added task lookup before update
-- Implemented safe update logic with fallback values
-##### Day 15 – Delete Task Endpoint
+- Designed tasks table with foreign key relationship
+- Implemented Task Model and Controller
+- Added ownership authorization checks
+- Completed Create, Read (Single/All), Update, and Delete operations
 
-- Implemented DELETE /tasks/:id
-- Added authorization check to ensure users delete only their own tasks
-- Added task existence check before deletion
-- Completed CRUD operations for Task API
+#### Day 17-21: Advanced Querying & Filtering
 
-##### Day 14: Update Task
-- Implemented PATCH /tasks/:id
-- Ownership check
-- Safe update logic
+- Added query filtering by status
+- Implemented multi-column sorting (`?sort=-created_at`)
+- Added pagination support (`?page=1&limit=10`)
+- Built a unified dynamic query engine
+- Added specialized `PATCH /tasks/:id/status` endpoint
 
-##### Day 15: Delete Task
-- Implemented DELETE /tasks/:id
-- Ownership + existence check
-- Completed Task CRUD API
+#### Day 22-23: Security Hardening
 
-##### Day 16: Get Single Task
-- Implemented GET /tasks/:id
-- Ownership authorization check
-- Secure data access (user isolation)
+- Installed and configured `helmet` for HTTP headers
+- Added `express-rate-limit` for DDoS/Brute-force protection
+- Configured CORS and request body size limits
 
-##### Day 17: Task Filtering
-- Added query filtering (status)
-- Endpoint: GET /api/v1/tasks?status=pending
-- Dynamic SQL queries
-- Secure parameterized queries
+#### Day 24: Centralized Logging with Winston
 
-##### Day 18: Sorting
-- Added sorting support
-- Examples:
-?sort=created_at
-?sort=-created_at
-- Implemented ORDER BY ASC/DESC
+- Integrated `winston` for systematic application logging
+- Created a custom logger utility (`src/utils/logger.js`)
+- Configured log rotation for errors (`error.log`) and combined logs (`combined.log`)
+- Replaced basic `console.error` with `logger.error` in global error handler
+- Added colorized console output for development environment
 
-##### Day 19: Pagination
-- Added pagination support
-- Query parameters:
-- ?page=1&limit=10
-- Implemented:limit,offset
 
-##### Day 20: Combined Query System
-- Unified filtering + sorting + pagination
-- Example:GET /tasks?status=pending&sort=-created_at&page=1&limit=5
--Built dynamic query engine
 
-##### Day 21: Task Status Update
-- Added endpoint:
-- PATCH /tasks/:id/status
-- Update only task status
-- Authorization enforced
+---
 
-##### Day 22: Security — HTTP Headers
-- Installed and configured helmet
-- Protected against:XSS,clickjacking,MIME sniffing
+##  License
 
-##### Day 23: Security — Rate Limiting & CORS
-- Added express-rate-limit
-- Prevented brute-force attacks
-- Added cors configuration
-- Restricted API access origins
-- Added request body size limit (10kb)
-## Project Structure
-
-```text
-taskflow-api/
-│
-├── src/
-│   ├── config/
-│   │   └── db.js            # MySQL connection pool
-│   ├── controllers/# Request/response logic
-|   |    ├── user.controller.js
-|   |    └── auth.controller.js
-│   ├── services/            # Business logic layer
-│   ├── models/              # Database queries layer
-|   |   ├── user.model.js
-│   │   └── task.model.js
-│   ├── routes/              # API route definitions
-|   |    └── user.routes.js
-│   ├── middlewares/         # Custom middlewares
-│   │   ├── error.middleware.js
-│   │   ├──validation.middleware.js
-|   |   ├──auth.middleware.js
-|   |   └──validate.middleware.js
-│   ├── utils/               # Helper utilities
-│   │   ├── appError.js
-│   │   └── catchAsync.js
-│   ├── validators/          # validate user
-│   │   └── user.validator.js
-│   ├── app.js               # Express app configuration
-│   └── server.js            # Application entry point
-│
-├── .env                     # Environment variables
-├── .gitignore               # Git ignore rules
-├── package.json             # Project metadata and dependencies
-└── README.md                # Project documentation
-```
+This project is licensed under the **ISC License**.
