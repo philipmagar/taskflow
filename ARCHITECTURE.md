@@ -10,6 +10,7 @@ This document describes the architecture for the TaskFlow Node.js Express API, i
 - **Password Security:** bcryptjs 3.0.3
 - **Input Validation:** joi 18.0.2, express-validator 7.3.1
 - **HTTP Logging:** Morgan 1.10.1
+- **Application Logging:** Winston 3.19.0
 - **Environment:** dotenv 17.3.1
 
 ## Architecture Layers
@@ -22,7 +23,8 @@ This document describes the architecture for the TaskFlow Node.js Express API, i
 - Entry point for all client requests
 - Routes requests to appropriate handlers
 - Manages HTTP request/response lifecycle
-- Implements Morgan for request logging
+- Implements **Morgan** for HTTP request logging
+- Implements **Winston** for centralized application logging and error tracking
 
 ### 3. Authentication & Security Layer
 - **JWT Authentication:** jsonwebtoken for token-based authentication
@@ -58,7 +60,9 @@ graph TD
     H -->|Data| G
     G -->|Response| I[Express Server]
     I -->|HTTP Response| A
-    B -->|Logs| J[Morgan Logger]
+    B-.-|HTTP Logs| J[Morgan Logger]
+    B-.-|App Logs/Errors| L[Winston Logger]
+    L -->|Save| M[(Log Files<br/>error.log, combined.log)]
     K[Environment Config<br/>dotenv] -.->|Configuration| B
 ```
 
@@ -70,6 +74,7 @@ graph TD
 | Password Security | Encrypt user passwords | bcryptjs |
 | Input Validation | Validate request data | joi, express-validator |
 | HTTP Logging | Monitor API requests | Morgan |
+| Application Logging | Centralized error & event tracking | Winston |
 | Configuration | Manage environment variables | dotenv |
 | Database | Data persistence | MySQL, mysql2 |
 
@@ -86,7 +91,8 @@ graph TD
 
 ✅ **Security:** JWT authentication + password encryption  
 ✅ **Reliability:** Input validation prevents malformed data  
-✅ **Observability:** Morgan logging for request tracking  
+✅ **Observability:** Morgan (Requests) + Winston (Application) for full-stack visibility  
+✅ **Logging:** Automated log rotation and error persistence  
 ✅ **Scalability:** Modular layer architecture for easy expansion  
 ✅ **Maintainability:** Clear separation of concerns between layers  
 ✅ **Flexibility:** Environment-based configuration via dotenv
