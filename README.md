@@ -215,7 +215,12 @@ taskflow-api/
 - Replaced basic `console.error` with `logger.error` in global error handler
 - Added colorized console output for development environment
 
+#### Day 25: Custom Request Logging Middleware
 
+- Implemented a custom request logging middleware using the `winston` logger.
+- Captured essential request details including HTTP method, URL, status code, duration, IP address, and user identity.
+- Integrated the custom logger into the application's top-level middleware stack for comprehensive traffic visibility.
+- Replaced basic logging with detailed, structured logs for better monitoring and debugging.
 
 ---
 
