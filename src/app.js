@@ -1,13 +1,14 @@
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
+const requestLogger = require("./middlewares/requestLogger.middleware");  
 //morgan
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
 // Middleware
 app.use(express.json());
-
+app.use(requestLogger);
 // Routes
 const userRoutes = require('./routes/user.routes');
 const authRoutes = require('./routes/auth.routes');
