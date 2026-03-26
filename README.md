@@ -222,6 +222,14 @@ taskflow-api/
 - Integrated the custom logger into the application's top-level middleware stack for comprehensive traffic visibility.
 - Replaced basic logging with detailed, structured logs for better monitoring and debugging.
 
+#### Day 26: Security Tracking and Brute-force Protection
+
+- Implemented an IP-based security tracker (`src/utils/securityTrack.js`) to record failed login attempts.
+- Added logic to block access for 15 minutes after 5 failed attempts from the same IP address.
+- Refactored login controller to use the new tracker and improved security by removing sensitive information from logs.
+- Integrated `isBlocked` middleware-like logic for enhanced brute-force defense.
+
+
 ---
 
 ##  License
