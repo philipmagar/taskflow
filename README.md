@@ -230,6 +230,14 @@ taskflow-api/
 - Integrated `isBlocked` middleware-like logic for enhanced brute-force defense.
 
 
+#### Day 27: Sorting, Pagination, and Request Hardening
+
+- Added a sorting whitelist and dynamic ORDER BY logic to the Task model.
+- Implemented pagination limits to prevent database overloading.
+- Integrated `helmet` middleware for essential HTTP security headers.
+- Enhanced input validation and sanitization using `express-validator`.
+- Verified security against unauthorized role escalation during registration.
+
 ---
 
 ##  License

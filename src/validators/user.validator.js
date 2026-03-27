@@ -1,8 +1,15 @@
-const joi = require('joi');
+const { body } = require('express-validator');
 
-const createUserSchema = joi.object({
-    email: joi.string().email().required(),
-    password: joi.string().min(6).required(),
-    role: joi.forbidden(),
-});
-module.exports ={ createUserSchema }
+exports.registerValidator = [
+  body('email')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
+  body('password')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+    .trim(),
+  body('role')
+    .custom((value) => {
+      if (value) throw new Error('Role selection is forbidden during registration');
+      return true;
+    }),
+];
