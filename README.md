@@ -238,6 +238,15 @@ taskflow-api/
 - Enhanced input validation and sanitization using `express-validator`.
 - Verified security against unauthorized role escalation during registration.
 
+#### Day 28: Security Hardening & API Consistency
+
+- Installed and configured `hpp` (HTTP Parameter Pollution) middleware for protection against multi-parameter attacks.
+- Secured production error responses to strictly prevent leaking internal stack traces or database details.
+- Standardized API response formats with a consistent `status`, `message`, and `data` structure.
+- Strengthened input validation for tasks with dedicated `express-validator` schemas.
+- Implemented robust mass assignment prevention using object filtering in the Task controller.
+- Refactored validation middleware into a reusable handler to improve code modularity.
+
 ---
 
 ##  License
