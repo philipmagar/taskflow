@@ -1,12 +1,13 @@
 const express = require('express');
 const userController = require('../controllers/user.controller');
-const { validate: validateUser } = require('../middlewares/validation.middleware');
+const { validate } = require('../middlewares/validation.middleware');
+const { registerValidator } = require('../validators/user.validator');
 
 const { protect, restrictTo } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
-router.post("/" , validateUser, userController.createUser);
+router.post("/", registerValidator, validate, userController.createUser);
 router.get("/admin-query", 
     protect, 
     restrictTo('admin'), 
