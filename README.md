@@ -247,6 +247,13 @@ taskflow-api/
 - Implemented robust mass assignment prevention using object filtering in the Task controller.
 - Refactored validation middleware into a reusable handler to improve code modularity.
 
+#### Day 29: Input Security & Suspicious Activity Detection
+
+- Developed a central `securityDetector` utility to scan inputs for common attack patterns (XSS, SQL Injection).
+- Implemented `securityMiddleware` to automatically scan `req.body` and `req.query` for all incoming requests.
+- Integrated structured logging for suspicious activities using the `winston` logger.
+- Configured the API to block requests containing malicious payloads with a 400 Bad Request response.
+
 ---
 
 ##  License
