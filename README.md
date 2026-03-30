@@ -254,8 +254,15 @@ taskflow-api/
 - Integrated structured logging for suspicious activities using the `winston` logger.
 - Configured the API to block requests containing malicious payloads with a 400 Bad Request response.
 
+#### Day 30: Automated IP Blocking & Suspicious Activity Tracking
+
+- Refactored `securityTrack.js` for reliable IP-based event recording and 15-minute temporary blocks.
+- Updated `securityMiddleware` to automatically track suspicious inputs (XSS/SQLi) towards IP blocking.
+- Standardized 403 Forbidden responses for blocked IPs with descriptive messaging.
+- Enhanced security logging to include attempt counts and specific block reasons for better auditability.
+
 ---
 
-##  License
+## License
 
 This project is licensed under the **ISC License**.
