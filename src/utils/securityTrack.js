@@ -1,33 +1,58 @@
 const attempts = new Map();
+const blockedIPs = new Map();
+
 const MAX_ATTEMPTS = 5;
-const BLOCK_TIME = 15 * 60 * 1000; // 15 minutes
+const WINDOW_TIME = 60 * 60 * 1000; // 1 hour window to track attempts
+const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes block duration
 
-exports.recordFailedLogin = (ip) => {
-  const data = attempts.get(ip) || { count: 0, lastAttempt: Date.now() };
-  data.count += 1;
-  data.lastAttempt = Date.now();
-  attempts.set(ip, data);
-  return data.count;
-};
-
-exports.resetAttempts = (ip) => {
-  attempts.delete(ip);
-};
-
+/**
+ * Checks if an IP is currently blocked
+ * @param {string} ip 
+ * @returns {boolean}
+ */
 exports.isBlocked = (ip) => {
-  const data = attempts.get(ip);
-  if (!data) return false;
+    const blockUntil = blockedIPs.get(ip);
+    if (!blockUntil) return false;
 
-  const isMoreThanMax = data.count >= MAX_ATTEMPTS;
-  const isWithinBlockTime = Date.now() - data.lastAttempt < BLOCK_TIME;
+    if (Date.now() > blockUntil) {
+        // Block expired, clean up
+        blockedIPs.delete(ip);
+        attempts.delete(ip);
+        return false;
+    }
 
-  if (isMoreThanMax && isWithinBlockTime) return true;
+    return true;
+};
 
-  // Reset if block time has passed
-  if (isMoreThanMax && !isWithinBlockTime) {
+/**
+ * Records a suspicious event for an IP and blocks if threshold reached
+ * @param {string} ip 
+ * @returns {number} Current attempt count
+ */
+exports.recordEvent = (ip) => {
+    const now = Date.now();
+    let timestamps = attempts.get(ip) || [];
+
+    // Filter out timestamps outside the current window
+    timestamps = timestamps.filter(time => now - time < WINDOW_TIME);
+    
+    // Add current timestamp
+    timestamps.push(now);
+    attempts.set(ip, timestamps);
+
+    // If threshold exceeded, block the IP
+    if (timestamps.length >= MAX_ATTEMPTS) {
+        blockedIPs.set(ip, now + BLOCK_DURATION);
+    }
+
+    return timestamps.length;
+};
+
+/**
+ * Resets attempts for a given IP (e.g., after a successful login)
+ * @param {string} ip 
+ */
+exports.resetAttempts = (ip) => {
     attempts.delete(ip);
-    return false;
-  }
-
-  return false;
-};
+    blockedIPs.delete(ip);
+};
