@@ -9,6 +9,7 @@ const requestLogger = (req, res, next) => {
     const duration = Date.now() - start;
 
     logger.info("HTTP Request", {
+      requestId: req.requestId,
       method: req.method,
       url: req.originalUrl,
       status: res.statusCode,

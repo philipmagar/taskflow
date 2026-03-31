@@ -14,6 +14,7 @@ const securityMiddleware = (req, res, next) => {
     // 1. Check if IP is currently blocked
     if (securityTrack.isBlocked(ip)) {
         logger.warn("Request from blocked IP attempted", {
+            requestId: req.requestId,
             ip,
             method: req.method,
             url: req.originalUrl,
@@ -34,6 +35,7 @@ const securityMiddleware = (req, res, next) => {
         const attempts = securityTrack.recordEvent(ip);
 
         logger.warn("Suspicious input detected", {
+            requestId: req.requestId,
             ip,
             method: req.method,
             url: req.originalUrl,
