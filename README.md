@@ -261,6 +261,15 @@ taskflow-api/
 - Standardized 403 Forbidden responses for blocked IPs with descriptive messaging.
 - Enhanced security logging to include attempt counts and specific block reasons for better auditability.
 
+#### Day 31: Structured Request Tracking (Request ID)
+
+- Installed `uuid` for unique request identification.
+- Implemented `requestIdMiddleware` to generate and assign a unique ID to every incoming request.
+- Configured `X-Request-ID` header in all API responses for client-side tracking.
+- Unified logging across all middlewares (`requestLogger`, `securityMiddleware`, and `errorMiddleware`) to include the `requestId`.
+- Fixed syntax errors and refined production-ready error logging for better traceability.
+- Ensured middleware execution order for consistent metadata availability.
+
 ---
 
 ## License
