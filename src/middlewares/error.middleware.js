@@ -5,7 +5,7 @@ const globalErrorHandler = (err, req, res, next) => {
   err.status = err.status || "error";
 
   if (process.env.NODE_ENV === "development") {
-    console.error("Error 💥:", err);
+    logger.error("Error 💥:", { message: err.message, stack: err.stack });
     return res.status(err.statusCode).json({
       status: err.status,
       error: err,
@@ -33,7 +33,7 @@ const globalErrorHandler = (err, req, res, next) => {
     }
 
     // Programming or other unknown error: don't leak error details
-    console.error("ERROR", err);
+    logger.error("ERROR", { message: err.message, stack: err.stack });
     return res.status(500).json({
       status: "error",
       message: "Something went very wrong!",
