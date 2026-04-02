@@ -17,6 +17,11 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+logger.info("task created successfully", {
+  requestId: req.requestId,
+  userId: req.user.id,
+  taskId: result.insertId,
+});
 exports.createTask = catchAsync(async (req, res, next) => {
   // Mass assignment protection
   const filteredBody = filterObj(req.body, "title", "description");

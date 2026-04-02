@@ -5,6 +5,7 @@ const hpp = require('hpp');
 const app = express();
 const requestLogger = require("./middlewares/requestLogger.middleware");  
 const securityMiddleware = require("./middlewares/security.middleware");
+const requestIdMiddleware = require("./middlewares/requestId.middleware");
 //morgan
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
@@ -13,6 +14,7 @@ if (process.env.NODE_ENV === 'development'){
 app.use(helmet());
 app.use(express.json());
 app.use(hpp());
+app.use(requestIdMiddleware);
 app.use(requestLogger);
 app.use(securityMiddleware);
 // Routes
