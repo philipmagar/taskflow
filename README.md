@@ -276,6 +276,14 @@ taskflow-api/
 - Readable dev logs
 - Production JSON logs
 
+#### Day 33: Log Rotation & Retention Policy
+
+- Integrated `winston-daily-rotate-file` for automatic log management.
+- Configured daily rotation with `%DATE%` pattern (`YYYY-MM-DD`).
+- Implemented file size limits (`maxSize: 10m` for combined, `5m` for errors).
+- Set retention policy (`maxFiles: 7d`) to prevent disk overcrowding.
+- Fixed `DailyRotateFile` initialization and improved log segregation.
+
 ---
 
 ## License
