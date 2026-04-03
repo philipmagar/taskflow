@@ -26,13 +26,17 @@ const filerotateTransport = new DailyRotateFile({
   zippedArchive: true,
   maxSize: "10m",
   maxFiles: "7d",
+  auditFile: "logs/.combined-audit.json",
 });
+
 const errorRotateTransport = new DailyRotateFile({
   filename: "logs/error-%DATE%.log",
   datePattern: "YYYY-MM-DD",
   zippedArchive: true,
   maxSize: "5m",
   maxFiles: "7d",
+  auditFile: "logs/.error-audit.json",
+  level: "error",
 });
 const logger = createLogger({
   level: "info",
