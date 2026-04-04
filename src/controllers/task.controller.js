@@ -1,4 +1,4 @@
-const Task = require("../models/task.model");
+const TaskService = require("../services/task.service");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const logger = require("../utils/logger");
@@ -17,27 +17,21 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-logger.info("task created successfully", {
-  requestId: req.requestId,
-  userId: req.user.id,
-  taskId: result.insertId,
-});
+/**
+ * Controller for creating a task
+ */
 exports.createTask = catchAsync(async (req, res, next) => {
-  // Mass assignment protection
   const filteredBody = filterObj(req.body, "title", "description");
 
-  if (!filteredBody.title) {
-    return next(new AppError("Task title is required", 400));
-  }
-
-  const result = await Task.createTask(
+  const result = await TaskService.createTask(
     filteredBody.title,
     filteredBody.description,
     req.user.id
   );
 
   logger.info("Task created successfully", {
-    UserId: req.user.id,
+    requestId: req.requestId,
+    userId: req.user.id,
     taskId: result.insertId,
   });
 
@@ -50,9 +44,11 @@ exports.createTask = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Controller for getting all user tasks
+ */
 exports.getTasks = catchAsync(async (req, res, next) => {
-  const { status } = req.query;
-  const tasks = await Task.getTasksByUserId(req.user.id, { status });
+  const tasks = await TaskService.getTasksByUserId(req.user.id, req.query);
 
   res.status(200).json({
     status: "success",
@@ -63,17 +59,11 @@ exports.getTasks = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Controller for getting a single task by ID
+ */
 exports.getTaskById = catchAsync(async (req, res, next) => {
-  const task = await Task.getTaskById(req.params.id);
-
-  if (!task) {
-    return next(new AppError("Task not found", 404));
-  }
-
-  // Authorization check
-  if (task.user_id !== req.user.id) {
-    return next(new AppError("Not authorized to access this task", 403));
-  }
+  const task = await TaskService.getTaskById(req.params.id, req.user.id);
 
   res.status(200).json({
     status: "success",
@@ -83,32 +73,17 @@ exports.getTaskById = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Controller for updating a task
+ */
 exports.updateTask = catchAsync(async (req, res, next) => {
-  const taskId = req.params.id;
-  const task = await Task.getTaskById(taskId);
-
-  if (!task) {
-    return next(new AppError("Task not found", 404));
-  }
-
-  if (task.user_id !== req.user.id) {
-    return next(
-      new AppError("You do not have permission to update this task", 403)
-    );
-  }
-
-  // Mass assignment protection
   const filteredBody = filterObj(req.body, "title", "description");
 
   if (Object.keys(filteredBody).length === 0) {
     return next(new AppError("No data provided to update", 400));
   }
 
-  await Task.updateTask(
-    taskId,
-    filteredBody.title || task.title,
-    filteredBody.description || task.description
-  );
+  await TaskService.updateTask(req.params.id, req.user.id, filteredBody);
 
   res.status(200).json({
     status: "success",
@@ -117,21 +92,11 @@ exports.updateTask = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Controller for deleting a task
+ */
 exports.deleteTask = catchAsync(async (req, res, next) => {
-  const taskId = req.params.id;
-  const task = await Task.getTaskById(taskId);
-
-  if (!task) {
-    return next(new AppError("Task not found", 404));
-  }
-
-  if (task.user_id !== req.user.id) {
-    return next(
-      new AppError("You do not have permission to delete this task", 403)
-    );
-  }
-
-  await Task.deleteTask(taskId);
+  await TaskService.deleteTask(req.params.id, req.user.id);
 
   res.status(204).json({
     status: "success",

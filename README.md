@@ -283,6 +283,14 @@ taskflow-api/
 - Verified disk overflow prevention with compressed archives (`zippedArchive`).
 - Updated internal policies for log metadata organization.
 
+#### Day 35: Service Layer Implementation & Controller Refactoring
+
+- Introduced a dedicated `TaskService` in `src/services/task.service.js` to handle business logic.
+- Decoupled `TaskController` from direct database model interactions.
+- Simplified controller methods to focus on request validation and response handling.
+- Enhanced internal security by centralizing task ownership verification in the service layer.
+- Fixed syntax and logging errors in the Task controller for improved stability.
+
 ---
 
 ## License
