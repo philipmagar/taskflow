@@ -1,81 +1,112 @@
-const Task = require("../models/task.model");
+const pool = require("../config/db");
 const AppError = require("../utils/appError");
+const TaskModel = require("../models/task.model");
 
 /**
- * Service to handle task-related business logic
+ * Create a task with transaction (atomic operation)
  */
-class TaskService {
-  /**
-   * Create a new task
-   * @param {string} title - Task title
-   * @param {string} description - Task description
-   * @param {number} userId - ID of the user creating the task
-   * @returns {Promise<Object>}
-   */
-  static async createTask(title, description, userId) {
+exports.createTask = async (title, description, userId) => {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
     if (!title) {
       throw new AppError("Task title is required", 400);
     }
-    return await Task.createTask(title, description, userId);
+
+    // 1️⃣ Insert task
+    const [taskResult] = await connection.query(
+      "INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)",
+      [title, description, userId]
+    );
+
+    // 2️⃣ Update user task count
+    await connection.query(
+      "UPDATE users SET task_count = task_count + 1 WHERE id = ?",
+      [userId]
+    );
+
+    await connection.commit();
+    return taskResult;
+
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+/**
+ * Get all tasks for a user (pass-through)
+ */
+exports.getTasksByUserId = async (userId, options) => {
+  return await TaskModel.getTasksByUserId(userId, options);
+};
+
+/**
+ * Get a single task by ID (pass-through)
+ */
+exports.getTaskById = async (taskId, userId) => {
+  const task = await TaskModel.getTaskById(taskId);
+  
+  if (!task || task.user_id !== userId) {
+    throw new AppError("Task not found or access denied", 404);
+  }
+  
+  return task;
+};
+
+/**
+ * Update a task (pass-through)
+ */
+exports.updateTask = async (taskId, userId, data) => {
+  const task = await TaskModel.getTaskById(taskId);
+  
+  if (!task || task.user_id !== userId) {
+    throw new AppError("Task not found or access denied", 404);
   }
 
-  /**
-   * Get all tasks for a specific user with optional filtering/sorting/pagination
-   * @param {number} userId - ID of the user
-   * @param {Object} queryOptions - Filtering/sorting/pagination options
-   * @returns {Promise<Array>}
-   */
-  static async getTasksByUserId(userId, queryOptions) {
-    return await Task.getTasksByUserId(userId, queryOptions);
-  }
+  const { title, description } = data;
+  return await TaskModel.updateTask(taskId, title || task.title, description || task.description);
+};
 
-  /**
-   * Get a single task by ID and verify ownership
-   * @param {number} taskId - ID of the task
-   * @param {number} userId - ID of the user
-   * @returns {Promise<Object>}
-   */
-  static async getTaskById(taskId, userId) {
-    const task = await Task.getTaskById(taskId);
+/**
+ * Delete a task with transaction (atomic operation)
+ */
+exports.deleteTask = async (taskId, userId) => {
+  const connection = await pool.getConnection();
 
-    if (!task) {
-      throw new AppError("Task not found", 404);
+  try {
+    await connection.beginTransaction();
+
+    // 1️⃣ Check if task exists and belongs to user
+    const [tasks] = await connection.query(
+      "SELECT * FROM tasks WHERE id = ? AND user_id = ?",
+      [taskId, userId]
+    );
+
+    if (tasks.length === 0) {
+      throw new AppError("Task not found or access denied", 404);
     }
 
-    if (task.user_id !== userId) {
-      throw new AppError("Not authorized to access this task", 403);
-    }
+    // 2️⃣ Delete task
+    await connection.query("DELETE FROM tasks WHERE id = ?", [taskId]);
 
-    return task;
+    // 3️⃣ Update user task count (decrement)
+    await connection.query(
+      "UPDATE users SET task_count = GREATEST(0, task_count - 1) WHERE id = ?",
+      [userId]
+    );
+
+    await connection.commit();
+    return true;
+
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
   }
-
-  /**
-   * Update a task's title and/or description
-   * @param {number} taskId - ID of the task
-   * @param {number} userId - ID of the user performing the update
-   * @param {Object} updateData - Data to update (title, description)
-   * @returns {Promise<Object>}
-   */
-  static async updateTask(taskId, userId, updateData) {
-    const task = await this.getTaskById(taskId, userId);
-
-    const title = updateData.title || task.title;
-    const description = updateData.description || task.description;
-
-    return await Task.updateTask(taskId, title, description);
-  }
-
-  /**
-   * Delete a task
-   * @param {number} taskId - ID of the task
-   * @param {number} userId - ID of the user performing the deletion
-   * @returns {Promise<Object>}
-   */
-  static async deleteTask(taskId, userId) {
-    // Ownership check via getTaskById
-    await this.getTaskById(taskId, userId);
-    return await Task.deleteTask(taskId);
-  }
-}
-
-module.exports = TaskService;
+};
