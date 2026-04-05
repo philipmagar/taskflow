@@ -291,6 +291,13 @@ taskflow-api/
 - Enhanced internal security by centralizing task ownership verification in the service layer.
 - Fixed syntax and logging errors in the Task controller for improved stability.
 
+#### Day 36: Transaction System & Data Consistency
+
+- Implemented atomic transactions for task creation and deletion.
+- Ensured data consistency by syncing `users.task_count` with the number of tasks.
+- Refactored `TaskService` to use a unified transactional approach.
+- Implemented automatic rollback for failed multi-table operations.
+
 ---
 
 ## License
