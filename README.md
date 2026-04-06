@@ -298,6 +298,13 @@ taskflow-api/
 - Refactored `TaskService` to use a unified transactional approach.
 - Implemented automatic rollback for failed multi-table operations.
 
+#### Day 37: Concurrency Optimization & Race Condition Prevention
+
+- Refined the transaction system in `TaskService` by introducing explicit row-level database locking (`SELECT ... FOR UPDATE`).
+- Protected data integrity (e.g., `users.task_count` synchronization) from concurrency issues and race conditions during rapid multi-request task creation and deletion.
+- Removed redundant transactional methods to achieve a single robust handler.
+- Verified stable api performance and atomic data precision under high-concurrency request testing.
+
 ---
 
 ## License
