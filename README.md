@@ -305,6 +305,14 @@ taskflow-api/
 - Removed redundant transactional methods to achieve a single robust handler.
 - Verified stable api performance and atomic data precision under high-concurrency request testing.
 
+#### Day 38: Order Management System
+
+- Designed and integrated an order management system including routes, controllers, and services.
+- Added `order.routes.js` for routing.
+- Added `order.control.js` for handling order logic.
+- Added `order.service.js` for business logic separation and consistency.
+- Updated `app.js` to initialize the order routes and modularize API endpoints.
+
 ---
 
 ## License
