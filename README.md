@@ -313,6 +313,12 @@ taskflow-api/
 - Added `order.service.js` for business logic separation and consistency.
 - Updated `app.js` to initialize the order routes and modularize API endpoints.
 
+#### Day 39: Code Refactoring & De-duplication
+
+- Fixed an anomalous nested function definition (`getTasks`) within the `deleteTask` service method.
+- Cleaned up conflicting and duplicated `getTasks` controller definitions.
+- Ensured `TaskModel.getTasksAdvanced` is correctly linked to the new request handling logic.
+
 ---
 
 ## License
