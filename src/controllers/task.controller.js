@@ -16,10 +16,19 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
+exports.getTasks = catchAsync(async (req, res, next) => {
 
-/**
- * Controller for creating a task
- */
+  const tasks = await TaskService.getTasks(
+    req.user.id,
+    req.query
+  );
+
+  res.status(200).json({
+    status: "success",
+    results: tasks.length,
+    data: tasks,
+  });
+});
 exports.createTask = catchAsync(async (req, res, next) => {
   const filteredBody = filterObj(req.body, "title", "description");
 
@@ -44,20 +53,7 @@ exports.createTask = catchAsync(async (req, res, next) => {
   });
 });
 
-/**
- * Controller for getting all user tasks
- */
-exports.getTasks = catchAsync(async (req, res, next) => {
-  const tasks = await TaskService.getTasksByUserId(req.user.id, req.query);
 
-  res.status(200).json({
-    status: "success",
-    results: tasks.length,
-    data: {
-      tasks,
-    },
-  });
-});
 
 /**
  * Controller for getting a single task by ID

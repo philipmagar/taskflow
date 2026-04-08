@@ -47,16 +47,15 @@ exports.createTask = async (title, description, userId) => {
   }
 };
 
-/**
- * Get all tasks for a user (pass-through)
- */
 exports.getTasksByUserId = async (userId, options) => {
   return await TaskModel.getTasksByUserId(userId, options);
 };
 
-/**
- * Get a single task by ID (pass-through)
- */
+exports.getTasks = async (userId, queryParams) => {
+  const tasks = await TaskModel.getTasksAdvanced(userId, queryParams);
+  return tasks;
+};
+
 exports.getTaskById = async (taskId, userId) => {
   const task = await TaskModel.getTaskById(taskId);
 
@@ -85,9 +84,7 @@ exports.updateTask = async (taskId, userId, data) => {
   );
 };
 
-/**
- * Delete a task with transaction and row lock (atomic operation)
- */
+
 exports.deleteTask = async (taskId, userId) => {
   const connection = await pool.getConnection();
 
@@ -103,6 +100,7 @@ exports.deleteTask = async (taskId, userId) => {
     if (!userRows.length) {
       throw new AppError("User not found", 404);
     }
+
 
     // 1️⃣ Check if task exists and belongs to user
     const [tasks] = await connection.query(

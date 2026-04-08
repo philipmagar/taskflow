@@ -46,9 +46,41 @@ exports.updateTask = async (taskId, title, description) => {
   );
   return result;
 };
+exports.getTasksAdvanced = async (userId, queryParams) => {
 
+  let query = "SELECT * FROM tasks WHERE user_id = ?";
+  const values = [userId];
+
+  // 🔍 Filtering
+  if (queryParams.status) {
+    query += " AND status = ?";
+    values.push(queryParams.status);
+  }
+
+  // 🔽 Sorting
+  if (queryParams.sort) {
+    const allowedSortFields = ["created_at", "title"];
+    if (allowedSortFields.includes(queryParams.sort)) {
+      query += ` ORDER BY ${queryParams.sort}`;
+    }
+  } else {
+    query += " ORDER BY created_at DESC";
+  }
+
+  // 📄 Pagination
+  const limit = parseInt(queryParams.limit) || 10;
+  const page = parseInt(queryParams.page) || 1;
+  const offset = (page - 1) * limit;
+
+  query += " LIMIT ? OFFSET ?";
+  values.push(limit, offset);
+
+  const [rows] = await pool.query(query, values);
+
+  return rows;
+};
 exports.deleteTask = async (taskId) => {
   const [result] = await pool.query("DELETE FROM tasks WHERE id = ?", [taskId]);
   return result;
 };
-
+
