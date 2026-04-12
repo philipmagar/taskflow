@@ -1,5 +1,6 @@
 const OrderService = require("../services/order.service");
 const catchAsync = require("../utils/catchAsync");
+const apiResponse = require("../utils/apiResponse");
 
 exports.createOrder = catchAsync(async (req, res, next) => {
   const { productId, quantity } = req.body;
@@ -10,9 +11,5 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     quantity,
   );
 
-  res.status(201).json({
-    status: "success",
-    message: "Order created",
-    orderId: result.insertId,
-  });
+  apiResponse.success(res, "Order created", { orderId: result.insertId }, 201);
 });

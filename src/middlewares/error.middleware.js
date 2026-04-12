@@ -8,8 +8,8 @@ const globalErrorHandler = (err, req, res, next) => {
     logger.error("Error 💥:", { message: err.message, stack: err.stack });
     return res.status(err.statusCode).json({
       status: err.status,
-      error: err,
       message: err.message,
+      error: err,
       stack: err.stack,
     });
   }
@@ -39,6 +39,7 @@ const globalErrorHandler = (err, req, res, next) => {
       message: "Something went very wrong!",
     });
   }
+
   // Fallback for other environments (test, etc)
   return res.status(err.statusCode).json({
     status: err.status,
@@ -47,3 +48,4 @@ const globalErrorHandler = (err, req, res, next) => {
 };
 
 module.exports = globalErrorHandler;
+

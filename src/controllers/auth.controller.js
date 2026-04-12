@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 const AppError = require("../utils/appError");
+const apiResponse = require("../utils/apiResponse");
 const catchAsync = require("../utils/catchAsync");
 const securityTracker = require("../utils/securityTrack");
 const logger = require("../utils/logger");  
@@ -31,10 +32,9 @@ const login = catchAsync(async (req, res, next) => {
 
   logger.info("User logged in successfully", { userId: user.id, ip: req.ip });
 
-  res.status(200).json({
-    status: "success",
+  apiResponse.success(res, "Login successful", {
     token,
-    data: {
+    user: {
       id: user.id,
       email: user.email,
       role: user.role,

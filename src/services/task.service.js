@@ -1,6 +1,21 @@
 const pool = require("../config/db");
 const AppError = require("../utils/appError");
 const TaskModel = require("../models/task.model");
+const cache = require("../utils/cache");
+
+/**
+ * Generate a cache key for task queries
+ * @param {Number} userId
+ * @param {Object} queryParams
+ * @returns {String}
+ */
+const buildCacheKey = (userId, queryParams) => {
+  const sortedParams = Object.keys(queryParams)
+    .sort()
+    .map((key) => `${key}=${queryParams[key]}`)
+    .join("&");
+  return `tasks:user:${userId}:${sortedParams}`;
+};
 
 /**
  * Create a task with transaction and row lock (atomic operation)
@@ -38,6 +53,10 @@ exports.createTask = async (title, description, userId) => {
     );
 
     await connection.commit();
+
+    // 🗑️ Invalidate task cache for this user
+    cache.deleteByPrefix(`tasks:user:${userId}`);
+
     return taskResult;
   } catch (error) {
     await connection.rollback();
@@ -51,8 +70,26 @@ exports.getTasksByUserId = async (userId, options) => {
   return await TaskModel.getTasksByUserId(userId, options);
 };
 
+/**
+ * Get tasks with caching
+ * First request  → Database (result cached)
+ * Second request → Cache (faster)
+ */
 exports.getTasks = async (userId, queryParams) => {
+  const cacheKey = buildCacheKey(userId, queryParams);
+
+  // 🔍 Check cache first
+  const cachedData = cache.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  // 📦 Cache miss → query database
   const tasks = await TaskModel.getTasksAdvanced(userId, queryParams);
+
+  // 💾 Store in cache (60s TTL)
+  cache.set(cacheKey, tasks);
+
   return tasks;
 };
 
@@ -77,11 +114,16 @@ exports.updateTask = async (taskId, userId, data) => {
   }
 
   const { title, description } = data;
-  return await TaskModel.updateTask(
+  const result = await TaskModel.updateTask(
     taskId,
     title || task.title,
     description || task.description,
   );
+
+  // 🗑️ Invalidate task cache for this user
+  cache.deleteByPrefix(`tasks:user:${userId}`);
+
+  return result;
 };
 
 
@@ -122,6 +164,10 @@ exports.deleteTask = async (taskId, userId) => {
     );
 
     await connection.commit();
+
+    // 🗑️ Invalidate task cache for this user
+    cache.deleteByPrefix(`tasks:user:${userId}`);
+
     return true;
   } catch (error) {
     await connection.rollback();
@@ -130,3 +176,4 @@ exports.deleteTask = async (taskId, userId) => {
     connection.release();
   }
 };
+

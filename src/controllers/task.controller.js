@@ -2,6 +2,7 @@ const TaskService = require("../services/task.service");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const logger = require("../utils/logger");
+const apiResponse = require("../utils/apiResponse");
 
 /**
  * Filter an object based on allowed fields
@@ -16,19 +17,16 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
-exports.getTasks = catchAsync(async (req, res, next) => {
 
+exports.getTasks = catchAsync(async (req, res, next) => {
   const tasks = await TaskService.getTasks(
     req.user.id,
     req.query
   );
 
-  res.status(200).json({
-    status: "success",
-    results: tasks.length,
-    data: tasks,
-  });
+  apiResponse.success(res, "Tasks fetched", { results: tasks.length, tasks });
 });
+
 exports.createTask = catchAsync(async (req, res, next) => {
   const filteredBody = filterObj(req.body, "title", "description");
 
@@ -44,16 +42,8 @@ exports.createTask = catchAsync(async (req, res, next) => {
     taskId: result.insertId,
   });
 
-  res.status(201).json({
-    status: "success",
-    message: "Task created successfully",
-    data: {
-      taskId: result.insertId,
-    },
-  });
+  apiResponse.success(res, "Task created successfully", { taskId: result.insertId }, 201);
 });
-
-
 
 /**
  * Controller for getting a single task by ID
@@ -61,12 +51,7 @@ exports.createTask = catchAsync(async (req, res, next) => {
 exports.getTaskById = catchAsync(async (req, res, next) => {
   const task = await TaskService.getTaskById(req.params.id, req.user.id);
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      task,
-    },
-  });
+  apiResponse.success(res, "Task fetched", { task });
 });
 
 /**
@@ -81,11 +66,7 @@ exports.updateTask = catchAsync(async (req, res, next) => {
 
   await TaskService.updateTask(req.params.id, req.user.id, filteredBody);
 
-  res.status(200).json({
-    status: "success",
-    message: "Task updated successfully",
-    data: null,
-  });
+  apiResponse.success(res, "Task updated successfully");
 });
 
 /**

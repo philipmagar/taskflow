@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const apiResponse = require("../utils/apiResponse");
 const bcrypt = require("bcryptjs");
 exports.createUser = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
@@ -13,12 +14,9 @@ exports.createUser = catchAsync(async (req, res, next) => {
     const hashedPassword = await bycrypt.hash(password, 12);
     
     const result = await User.create(email, hashedPassword);
-    res.status(201).json({
-        status: 'success',
-        data: {
-            userId: result.insertId,
-            email : email,
-            role : "member"
-        }
-    });
+    apiResponse.success(res, "User created successfully", {
+        userId: result.insertId,
+        email: email,
+        role: "member"
+    }, 201);
 });

@@ -1,4 +1,5 @@
 const express = require("express");
+const apiResponse = require("./utils/apiResponse");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const hpp = require("hpp");
@@ -17,7 +18,13 @@ app.use(hpp());
 app.use(requestIdMiddleware);
 app.use(requestLogger);
 app.use(securityMiddleware);
-app.use("api/v1/orders", require("./routes/order.routes"));
+
+// Health Check Endpoint
+app.get("/api/v1/health", (req, res) => {
+  apiResponse.success(res, "API is running");
+});
+
+app.use("/api/v1/orders", require("./routes/order.routes"));
 // Routes
 const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
