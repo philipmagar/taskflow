@@ -81,6 +81,12 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 
 ##  API Endpoints (v1)
 
+### Health
+
+| Method | Endpoint           | Description              |
+| :----- | :----------------- | :----------------------- |
+| GET    | `/api/v1/health`   | API health check         |
+
 ### Auth & Users
 
 | Method | Endpoint                | Description                   |
@@ -110,9 +116,11 @@ taskflow-api/
 │   ├── config/          # Database & app configurations
 │   ├── controllers/     # Request handling logic
 │   ├── middlewares/     # Auth, Validation, Error middlewares
+│   ├── migrations/      # SQL migration scripts (indexes, schema)
 │   ├── models/          # MySQL database queries
 │   ├── routes/          # API endpoint definitions
-│   ├── utils/           # Shared utilities (AppError, catchAsync)
+│   ├── services/        # Business logic layer
+│   ├── utils/           # Shared utilities (AppError, catchAsync, apiResponse, cache)
 │   ├── validators/      # Schema-based validations
 │   ├── app.js           # App configuration
 │   └── server.js        # Entry point
@@ -318,6 +326,31 @@ taskflow-api/
 - Fixed an anomalous nested function definition (`getTasks`) within the `deleteTask` service method.
 - Cleaned up conflicting and duplicated `getTasks` controller definitions.
 - Ensured `TaskModel.getTasksAdvanced` is correctly linked to the new request handling logic.
+
+#### Day 40: Global API Response System
+
+- Created a reusable `apiResponse` utility (`src/utils/apiResponse.js`) with `success()` and `error()` helpers.
+- Standardized all API responses to follow a consistent `{ status, message, data }` structure.
+- Refactored all controllers (task, auth, user, order) to use the new response utility.
+- Added a `GET /api/v1/health` endpoint for basic service monitoring.
+- Fixed a missing leading slash on the orders route (`/api/v1/orders`).
+
+#### Day 41: Database Performance Optimization
+
+- Added database indexes on frequently queried fields for faster query execution.
+- Created `idx_tasks_user_id` index on `tasks(user_id)` for per-user task lookups.
+- Created `idx_tasks_status` index on `tasks(status)` for status-based filtering.
+- Created `idx_tasks_created_at` index on `tasks(created_at)` for date-based sorting.
+- Created composite `idx_tasks_user_status` index on `tasks(user_id, status)` for combined query patterns.
+- Added SQL migration script in `src/migrations/add_indexes.sql`.
+
+#### Day 42: Basic Caching System
+
+- Implemented an in-memory cache utility (`src/utils/cache.js`) with configurable TTL (time-to-live).
+- Integrated caching into `getTasks` service to reduce repeated database queries.
+- Cache key built from `userId` and query parameters for granular caching.
+- Automatic cache invalidation on task create, update, and delete operations.
+- Prefix-based cache clearing ensures stale data is never served.
 
 ---
 
