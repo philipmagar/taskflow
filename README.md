@@ -77,6 +77,13 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    npm start
    ```
 
+6. **Run Tests**:
+
+   ```bash
+   # Run all automated tests
+   npm test
+   ```
+
 ---
 
 ##  API Endpoints (v1)
@@ -351,6 +358,19 @@ taskflow-api/
 - Cache key built from `userId` and query parameters for granular caching.
 - Automatic cache invalidation on task create, update, and delete operations.
 - Prefix-based cache clearing ensures stale data is never served.
+
+#### Day 43: Automated Testing & Security Audit
+
+- Standardized the testing environment with **Jest** and **Supertest**.
+- Implemented a **Database Mocking** layer for isolated and reliable API testing.
+- Created comprehensive test suites for **Health**, **Auth**, and **Task** modules.
+- Developed a dedicated **Security Audit** suite covering:
+  - **XSS Protection**: Validated blocking of`<script>` injections.
+  - **SQL Injection**: Verified detection and blocking of malicious SQL patterns.
+  - **Brute Force Protection**: Tested IP-based temporary blocking after excessive failures.
+  - **Security Headers**: Verified proper configuration of 10+ essential headers via Helmet.
+- Integrated **Babel** in `package.json` for seamless ESM/CommonJS module compatibility.
+- Fixed critical application-level routing and dependency resolution bugs discovered during testing.
 
 ---
 
