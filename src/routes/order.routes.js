@@ -1,19 +1,11 @@
-const OrderService = require("../services/order.service");
-const catchAsync = require("../utils/catchAsync");
+const express = require("express");
+const orderController = require("../controllers/order.control");
+const { protect } = require("../middlewares/auth.middleware");
 
-exports.createOrder = catchAsync(async (req, res, next) => {
+const router = express.Router();
 
-  const { productId, quantity } = req.body;
+router.use(protect); // All order routes require authentication
 
-  const result = await OrderService.createOrder(
-    req.user.id,
-    productId,
-    quantity
-  );
+router.post("/", orderController.createOrder);
 
-  res.status(201).json({
-    status: "success",
-    message: "Order created",
-    orderId: result.insertId,
-  });
-});
+module.exports = router;
