@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const apiResponse = require("./utils/apiResponse");
 const helmet = require("helmet");

@@ -9,10 +9,12 @@ exports.protect = (req, res, next) => {
     if (!token) {
         return next(new AppError('you are not authorized to access this', 401));
     }
-    try{
-        const decoded = jwt.verify(token,process.env.JWT_SECRET);
-    }   catch (err){
-        return next(new AppError('Invalid token',401));
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return next(new AppError('Invalid token', 401));
     }
 };
 exports.restrictTo = (...roles) => {
