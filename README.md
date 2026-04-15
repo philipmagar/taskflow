@@ -372,6 +372,19 @@ taskflow-api/
 - Integrated **Babel** in `package.json` for seamless ESM/CommonJS module compatibility.
 - Fixed critical application-level routing and dependency resolution bugs discovered during testing.
 
+#### Day 45: Authentication Flow & Negative Scenario Testing
+
+- Implemented comprehensive authentication flow testing in `tests/auth.flow.test.js`.
+- Added negative test cases for user registration (duplicate emails, invalid formats).
+- Added negative test cases for login (incorrect passwords, non-existent users).
+- Verified protected route security (unauthorized access, invalid tokens).
+- Fixed critical bugs in authentication middleware and user controllers:
+  - Resolved typo in `bcrypt` usage in user controller.
+  - Fixed missing `next()` calls and `req.user` attachment in `protect` middleware.
+  - Integrated `dotenv` configuration for seamless test environment setup.
+- Reached 100% test pass rate for the authentication module (42 total tests passing).
+
+
 ---
 
 ## License
