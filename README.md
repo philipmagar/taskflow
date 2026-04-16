@@ -385,6 +385,16 @@ taskflow-api/
 - Reached 100% test pass rate for the authentication module (42 total tests passing).
 
 
+
+#### Day 46: Advanced Security Hardening & API Protection
+
+- Conducted a comprehensive manual security audit across five critical attack vectors: **SQL Injection**, **Unauthorized Access**, **Invalid Data**, **Token Abuse**, and **Large Payload Attacks**.
+- Fixed a **Critical RBAC Vulnerability** in `auth.controller.js` where user roles were missing from JWT payloads, which previously disabled Role-Based Access Control.
+- Hardened the API against **Large Payload Attacks** by implementing strict `10kb` size limits on `express.json()` middleware.
+- Validated **SQL Injection** defenses, confirming the robustness of prepared statements and whitelisted dynamic query building in the model layer.
+- Implemented an additional layer of defense using `securityMiddleware` to detect and block suspicious input patterns in both request bodies and query strings.
+- Monitored and documented audit results in a formal report for ongoing security tracking.
+
 ---
 
 ## License
