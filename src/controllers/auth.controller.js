@@ -26,7 +26,7 @@ const login = catchAsync(async (req, res, next) => {
 
   // On successful login
   securityTracker.resetAttempts(req.ip);
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
