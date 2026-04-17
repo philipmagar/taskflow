@@ -70,5 +70,22 @@ describe("Order API", () => {
 
             expect(res.statusCode).toBe(401);
         });
+        it("should fail if quantity is less than 1", async () => {
+            const res = await request(app)
+                .post("/api/v1/orders")
+                .set("Authorization", `Bearer ${token}`)
+                .send({ productId, quantity: 0 });
+
+            expect(res.statusCode).toBe(400);
+        });
+
+        it("should fail if authorized but product does not exist", async () => {
+            const res = await request(app)
+                .post("/api/v1/orders")
+                .set("Authorization", `Bearer ${token}`)
+                .send({ productId: 99999, quantity: 1 });
+
+            expect(res.statusCode).toBe(404);
+        });
     });
 });

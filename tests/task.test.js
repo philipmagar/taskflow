@@ -130,10 +130,15 @@ describe("Task API", () => {
     });
 
     it("should fail to update another user's task", async () => {
-       const [[targetTask]] = await pool.query("SELECT id FROM tasks WHERE title = 'Other Task'");
+       // Create another user and their task first
+       const hashedPassword = await bcrypt.hash("123456", 10);
+       const [otherUser] = await pool.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
+         ['other_update@test.com', hashedPassword, 'member']);
+       const [otherTask] = await pool.query("INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)", 
+         ["Other Task Update", "Secret", otherUser.insertId]);
        
        const res = await request(app)
-        .patch(`/api/v1/tasks/${targetTask.id}`)
+        .patch(`/api/v1/tasks/${otherTask.insertId}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ title: "Hack" });
 
@@ -141,10 +146,15 @@ describe("Task API", () => {
     });
 
     it("should fail to delete another user's task", async () => {
-       const [[targetTask]] = await pool.query("SELECT id FROM tasks WHERE title = 'Other Task'");
+       // Create another user and their task first
+       const hashedPassword = await bcrypt.hash("123456", 10);
+       const [otherUser] = await pool.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
+         ['other_delete@test.com', hashedPassword, 'member']);
+       const [otherTask] = await pool.query("INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)", 
+         ["Other Task Delete", "Secret", otherUser.insertId]);
 
        const res = await request(app)
-        .delete(`/api/v1/tasks/${targetTask.id}`)
+        .delete(`/api/v1/tasks/${otherTask.insertId}`)
         .set("Authorization", `Bearer ${token}`);
 
        expect(res.statusCode).toBe(404);

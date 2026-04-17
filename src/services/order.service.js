@@ -6,6 +6,10 @@ exports.createOrder = async (userId, productId, quantity) => {
 
   try {
     await connection.beginTransaction();
+    
+    if (quantity < 1) {
+      throw new AppError("Quantity must be at least 1", 400);
+    }
 
     // 🔴 LOCK PRODUCT ROW
     const [productRows] = await connection.query(
