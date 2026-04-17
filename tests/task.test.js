@@ -54,4 +54,100 @@ describe("Task API", () => {
       expect(res.statusCode).toBe(401);
     });
   });
+
+  describe("Task CRUD Ops (Integration)", () => {
+    const pool = require("../src/config/db");
+    const bcrypt = require("bcryptjs");
+    let token;
+
+    beforeEach(async () => {
+      // Setup user for auth
+      const hashedPassword = await bcrypt.hash( "123456", 10);
+      await pool.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
+        ['taskuser@test.com', hashedPassword, 'member']);
+      
+      const res = await request(app).post("/api/v1/auth/login").send({
+        email: 'taskuser@test.com',
+        password: '123456'
+      });
+      token = res.body.data.token;
+    });
+
+    it("should create a task successfully", async () => {
+      const res = await request(app)
+        .post("/api/v1/tasks")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ title: "Integration Task", description: "Testing" });
+
+      if (res.statusCode !== 201) {
+        console.error('DEBUG CREATE ERROR:', JSON.stringify(res.body, null, 2));
+      }
+      expect(res.statusCode).toBe(201);
+      expect(res.body.data.taskId).toBeDefined();
+      
+      // Verify in DB
+      const [rows] = await pool.query("SELECT * FROM tasks WHERE title = ?", ["Integration Task"]);
+      expect(rows.length).toBe(1);
+    });
+
+    it("should fetch user tasks", async () => {
+       // Pre-seed a task (using subquery safely)
+       const [[user]] = await pool.query("SELECT id FROM users LIMIT 1");
+       await pool.query("INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)", 
+        ["Sample Task", "Sample Desc", user.id]);
+
+       const res = await request(app)
+        .get("/api/v1/tasks")
+        .set("Authorization", `Bearer ${token}`);
+
+       if (res.statusCode !== 200) {
+        console.error('DEBUG FETCH ERROR:', JSON.stringify(res.body, null, 2));
+       }
+       expect(res.statusCode).toBe(200);
+       expect(res.body.data.tasks.length).toBeGreaterThanOrEqual(1);
+    });
+    it("should fail to fetch task that does not exist", async () => {
+      const res = await request(app)
+        .get("/api/v1/tasks/9999")
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it("should fail to fetch another user's task", async () => {
+       // Create another user and their task
+       const hashedPassword = await bcrypt.hash("123456", 10);
+       const [otherUser] = await pool.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
+         ['other@test.com', hashedPassword, 'member']);
+       const [otherTask] = await pool.query("INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)", 
+         ["Other Task", "Secret", otherUser.insertId]);
+
+       const res = await request(app)
+        .get(`/api/v1/tasks/${otherTask.insertId}`)
+        .set("Authorization", `Bearer ${token}`);
+
+       expect(res.statusCode).toBe(404); // Access denied is 404 in this API
+    });
+
+    it("should fail to update another user's task", async () => {
+       const [[targetTask]] = await pool.query("SELECT id FROM tasks WHERE title = 'Other Task'");
+       
+       const res = await request(app)
+        .patch(`/api/v1/tasks/${targetTask.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ title: "Hack" });
+
+       expect(res.statusCode).toBe(404);
+    });
+
+    it("should fail to delete another user's task", async () => {
+       const [[targetTask]] = await pool.query("SELECT id FROM tasks WHERE title = 'Other Task'");
+
+       const res = await request(app)
+        .delete(`/api/v1/tasks/${targetTask.id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+       expect(res.statusCode).toBe(404);
+    });
+  });
 });
