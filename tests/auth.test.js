@@ -116,4 +116,26 @@ describe("Auth API", () => {
       expect([400, 429, 403]).toContain(res.statusCode);
     });
   });
+
+  describe("Role Based Access Control", () => {
+    it("should block member from reaching admin route", async () => {
+      // Login as member
+      const hashedPassword = await require("bcryptjs").hash("123456", 10);
+      await require("../src/config/db").query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
+        ['member_rbac@test.com', hashedPassword, 'member']);
+
+      const loginRes = await request(app).post("/api/v1/auth/login").send({
+        email: 'member_rbac@test.com',
+        password: '123456'
+      });
+      const memberToken = loginRes.body.data.token;
+
+      const res = await request(app)
+        .get("/api/v1/users/admin-query")
+        .set("Authorization", `Bearer ${memberToken}`);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.body.message).toMatch(/not authorized/i);
+    });
+  });
 });
