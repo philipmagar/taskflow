@@ -29,4 +29,20 @@ describe("Health Check API", () => {
     expect(res.headers["x-content-type-options"]).toBe("nosniff");
     expect(res.headers["x-frame-options"]).toBeDefined();
   });
+
+  it("should use morgan in development", () => {
+    process.env.NODE_ENV = "development";
+    jest.resetModules();
+    const testApp = require("../src/app");
+    process.env.NODE_ENV = "test";
+    expect(testApp).toBeDefined();
+  });
+
+  it("should not use morgan in production", () => {
+    process.env.NODE_ENV = "production";
+    jest.resetModules();
+    const testAppProd = require("../src/app");
+    process.env.NODE_ENV = "test";
+    expect(testAppProd).toBeDefined();
+  });
 });

@@ -95,4 +95,4 @@ class Cache {
 }
 
 // Export a singleton instance with 60-second default TTL
-module.exports = new Cache(60);
+module.exports = new Cache();

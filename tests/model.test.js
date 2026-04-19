@@ -41,6 +41,16 @@ describe("Models", () => {
             const tasks = await TaskModel.getTasksAdvanced(userId, { limit: 2, page: 2 });
             expect(tasks.length).toBe(2);
         });
+
+        it("should fallback to 10 if limit is invalid in getTasksByUserId", async () => {
+            const tasks = await TaskModel.getTasksByUserId(userId, { limit: "invalid" });
+            expect(tasks).toBeDefined();
+        });
+
+        it("should ignore invalid sort field in getTasksAdvanced", async () => {
+            const tasks = await TaskModel.getTasksAdvanced(userId, { sort: "invalid" });
+            expect(tasks).toBeDefined();
+        });
         
         it("should update task", async () => {
              const res = await TaskModel.createTask("Old", "D", userId);

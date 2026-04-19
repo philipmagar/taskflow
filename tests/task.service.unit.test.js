@@ -107,6 +107,15 @@ describe('Task Service Business Logic Units', () => {
             expect(cache.deleteByPrefix).toHaveBeenCalled();
         });
 
+        it('should fallback to old title and description if not provided', async () => {
+            const task = { id: 10, user_id: 1, title: 'Old', description: 'OldD' };
+            TaskModel.getTaskById.mockResolvedValue(task);
+            TaskModel.updateTask.mockResolvedValue({ affectedRows: 1 });
+
+            await taskService.updateTask(10, 1, {});
+            expect(TaskModel.updateTask).toHaveBeenCalledWith(10, 'Old', 'OldD');
+        });
+
         it('should throw error if user does not own task', async () => {
             const task = { id: 10, user_id: 2 };
             TaskModel.getTaskById.mockResolvedValue(task);

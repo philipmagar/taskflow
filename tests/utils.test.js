@@ -50,6 +50,34 @@ describe("Utility Units", () => {
         expect(cache.get("user:1:a")).toBeNull();
         expect(cache.get("user:2:a")).toBeDefined();
     });
+
+    it("should clear cache and get size", () => {
+        cache.clear();
+        cache.set("a", 1);
+        expect(cache.size()).toBe(1);
+        cache.clear();
+        expect(cache.size()).toBe(0);
+    });
+
+    it("should manually delete a key", () => {
+        cache.set("a", 1);
+        cache.delete("a");
+        expect(cache.get("a")).toBeNull();
+    });
+
+    it("should cleanup expired keys", () => {
+        const realNow = Date.now;
+        try {
+          cache.set("b", 2, 60);
+          cache.set("c", 3, 3600); // long TTL
+          Date.now = () => realNow() + 120 * 1000;
+          cache.cleanup();
+          expect(cache.size()).toBe(1);
+          expect(cache.get("c")).toBe(3);
+        } finally {
+          Date.now = realNow;
+        }
+    });
   });
 
   describe("apiResponse", () => {
@@ -69,6 +97,24 @@ describe("Utility Units", () => {
             message: "err", 
             errors: { field: "required" } 
         });
+    });
+
+    it("should send success with data and custom status", () => {
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        apiResponse.success(res, "msg", { user: 1 }, 201);
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith({
+             status: "success",
+             message: "msg",
+             data: { user: 1 }
+        });
+    });
+
+    it("should send error without details and default status", () => {
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        apiResponse.error(res, "err");
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ status: "error", message: "err" });
     });
   });
 });
