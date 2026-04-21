@@ -1,5 +1,5 @@
-const taskModel = require('../src/models/task.model');
-const pool = require('../src/config/db');
+const taskModel = require('../../../src/models/task.model');
+const pool = require('../../../src/config/db');
 
 jest.mock('../src/config/db');
 

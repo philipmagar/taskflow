@@ -1,6 +1,6 @@
 const request = require("supertest");
-const app = require("../src/app");
-const securityTrack = require("../src/utils/securityTrack");
+const app = require('../../src/app");
+const securityTrack = require('../../src/utils/securityTrack");
 
 // Reset security tracker state before each test to prevent cross-test contamination
 beforeEach(() => {

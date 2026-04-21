@@ -1,4 +1,4 @@
-const validate = require('../src/middlewares/validate.middleware');
+const validate = require('../../../src/middlewares/validate.middleware');
 
 describe('Validate Middleware Units', () => {
     let req, res, next, mockSchema;

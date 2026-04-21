@@ -1,8 +1,8 @@
-const taskService = require('../src/services/task.service');
-const pool = require('../src/config/db');
-const cache = require('../src/utils/cache');
-const TaskModel = require('../src/models/task.model');
-const AppError = require('../src/utils/appError');
+const taskService = require('../../../src/services/task.service');
+const pool = require('../../../src/config/db');
+const cache = require('../../../src/utils/cache');
+const TaskModel = require('../../../src/models/task.model');
+const AppError = require('../../../src/utils/appError');
 
 jest.mock('../src/config/db');
 jest.mock('../src/utils/cache');

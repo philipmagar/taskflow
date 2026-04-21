@@ -1,6 +1,6 @@
-const { protect, restrictTo } = require('../src/middlewares/auth.middleware');
+const { protect, restrictTo } = require('../../../src/middlewares/auth.middleware');
 const jwt = require('jsonwebtoken');
-const AppError = require('../src/utils/appError');
+const AppError = require('../../../src/utils/appError');
 
 jest.mock('jsonwebtoken');
 

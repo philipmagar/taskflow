@@ -1,6 +1,6 @@
-const TaskModel = require("../src/models/task.model");
-const User = require("../src/models/user.model");
-const pool = require("../src/config/db");
+const TaskModel = require('../../src/models/task.model");
+const User = require('../../src/models/user.model");
+const pool = require('../../src/config/db");
 
 describe("Models", () => {
     let userId;

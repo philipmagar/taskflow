@@ -1,10 +1,10 @@
-const authController = require('../src/controllers/auth.controller');
-const User = require('../src/models/user.model');
+const authController = require('../../../src/controllers/auth.controller');
+const User = require('../../../src/models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const securityTracker = require('../src/utils/securityTrack');
-const apiResponse = require('../src/utils/apiResponse');
-const AppError = require('../src/utils/appError');
+const securityTracker = require('../../../src/utils/securityTrack');
+const apiResponse = require('../../../src/utils/apiResponse');
+const AppError = require('../../../src/utils/appError');
 
 jest.mock('../src/models/user.model');
 jest.mock('bcryptjs');

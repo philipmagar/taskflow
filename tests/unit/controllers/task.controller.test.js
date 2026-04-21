@@ -1,7 +1,7 @@
-const taskController = require('../src/controllers/task.controller');
-const TaskService = require('../src/services/task.service');
-const apiResponse = require('../src/utils/apiResponse');
-const AppError = require('../src/utils/appError');
+const taskController = require('../../../src/controllers/task.controller');
+const TaskService = require('../../../src/services/task.service');
+const apiResponse = require('../../../src/utils/apiResponse');
+const AppError = require('../../../src/utils/appError');
 
 jest.mock('../src/services/task.service');
 jest.mock('../src/utils/apiResponse');

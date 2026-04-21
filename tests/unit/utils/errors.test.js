@@ -1,5 +1,5 @@
-const globalErrorHandler = require("../src/middlewares/error.middleware");
-const AppError = require("../src/utils/appError");
+const globalErrorHandler = require('../../../src/middlewares/error.middleware");
+const AppError = require('../../../src/utils/appError");
 
 describe("Error Handling Units", () => {
     let req, res, next;

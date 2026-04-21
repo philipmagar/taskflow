@@ -1,6 +1,6 @@
-const orderService = require('../src/services/order.service');
-const pool = require('../src/config/db');
-const AppError = require('../src/utils/appError');
+const orderService = require('../../../src/services/order.service');
+const pool = require('../../../src/config/db');
+const AppError = require('../../../src/utils/appError');
 
 jest.mock('../src/config/db');
 

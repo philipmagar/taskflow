@@ -1,6 +1,6 @@
-const securityTrack = require("../src/utils/securityTrack");
-const cache = require("../src/utils/cache");
-const apiResponse = require("../src/utils/apiResponse");
+const securityTrack = require('../../../src/utils/securityTrack");
+const cache = require('../../../src/utils/cache");
+const apiResponse = require('../../../src/utils/apiResponse");
 
 describe("Utility Units", () => {
   

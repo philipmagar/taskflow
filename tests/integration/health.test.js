@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../src/app");
+const app = require('../../src/app");
 
 describe("Health Check API", () => {
   it("should return 200 and success status", async () => {
@@ -33,7 +33,7 @@ describe("Health Check API", () => {
   it("should use morgan in development", () => {
     process.env.NODE_ENV = "development";
     jest.resetModules();
-    const testApp = require("../src/app");
+    const testApp = require('../../src/app");
     process.env.NODE_ENV = "test";
     expect(testApp).toBeDefined();
   });
@@ -41,7 +41,7 @@ describe("Health Check API", () => {
   it("should not use morgan in production", () => {
     process.env.NODE_ENV = "production";
     jest.resetModules();
-    const testAppProd = require("../src/app");
+    const testAppProd = require('../../src/app");
     process.env.NODE_ENV = "test";
     expect(testAppProd).toBeDefined();
   });
