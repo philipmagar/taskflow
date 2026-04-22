@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+.git
+.env
+coverage
+logs
+tests
+test_output.txt
+test_concurrent.js
+refactor_tests.js
