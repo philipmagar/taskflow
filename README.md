@@ -84,6 +84,14 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    npm test
    ```
 
+7. **Docker Setup**:
+
+   You can also run the entire application (API and Database) via Docker:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+
 ---
 
 ##  API Endpoints (v1)
@@ -420,6 +428,12 @@ taskflow-api/
 - **Duplicate Code Removed**: Greatly reduced boilerplate and DB-insertion repetition across test files by leveraging shared setups and unified helpers.
 - **Naming Improved**: Standardized the naming conventions throughout the suite (distinguishing `*.unit.test.js` vs integration scopes) for faster debugging.
 - **Coverage Verified**: Handled edge permutations globally (like cache instances and middleware branch checks) to verify and enforce a flawless **100% coverage threshold** across the API architecture.
+
+#### Day 51: Containerization
+
+- Added `.dockerignore` and `Dockerfile` to create a portable, optimized Node.js image.
+- Implemented `docker-compose.yml` to orchestrate the Node.js API alongside a MySQL 8.0 database.
+- Standardized a consistent runtime environment to guarantee identically reproduced builds.
 
 ---
 
