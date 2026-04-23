@@ -434,6 +434,7 @@ taskflow-api/
 - Added `.dockerignore` and `Dockerfile` to create a portable, optimized Node.js image.
 - Implemented `docker-compose.yml` to orchestrate the Node.js API alongside a MySQL 8.0 database.
 - Standardized a consistent runtime environment to guarantee identically reproduced builds.
+- Verified API reachability and database connectivity within the containerized environment.
 
 ---
 
