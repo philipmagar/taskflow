@@ -442,6 +442,14 @@ taskflow-api/
 - Verified seamless database connectivity and established stable health-check responses.
 - Confirmed API reachability on port 5000, ensuring the containerized environment is production-ready.
 
+#### Day 53: Database Persistence & Robust Containerization
+
+- Implemented named volumes for MySQL to ensure data persistence across container restarts.
+- Optimized `docker-compose.yml` with a `restart: always` policy and port conflict resolution (switched host port to 3307).
+- Added an automated database initialization script (`init.sql`) to handle schema setup on first boot.
+- Verified data integrity by performing persistence tests on user registration records.
+
+
 ---
 
 
