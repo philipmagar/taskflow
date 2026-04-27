@@ -1,7 +1,8 @@
 const { createLogger, format, transports } = require("winston");
 const DailyRotateFile = require("winston-daily-rotate-file");
+const config = require("../config/config");
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = config.env === "production";
 
 //  DEV FORMAT (Readable)
 const devFormat = format.combine(

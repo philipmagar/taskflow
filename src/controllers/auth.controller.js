@@ -5,7 +5,15 @@ const AppError = require("../utils/appError");
 const apiResponse = require("../utils/apiResponse");
 const catchAsync = require("../utils/catchAsync");
 const securityTracker = require("../utils/securityTrack");
-const logger = require("../utils/logger");  
+const logger = require("../utils/logger");
+const config = require("../config/config");
+
+const generateToken = (user) => {
+  return jwt.sign({ id: user.id, role: user.role }, config.jwt.secret, {
+    expiresIn: config.jwt.expiresIn,
+  });
+};
+
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -26,9 +34,7 @@ const login = catchAsync(async (req, res, next) => {
 
   // On successful login
   securityTracker.resetAttempts(req.ip);
-  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+  const token = generateToken(user);
 
   logger.info("User logged in successfully", { userId: user.id, ip: req.ip });
 

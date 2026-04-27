@@ -1,4 +1,4 @@
-require('dotenv').config();
+const config = require("./config/config");
 const express = require("express");
 const apiResponse = require("./utils/apiResponse");
 const helmet = require("helmet");
@@ -9,7 +9,7 @@ const requestLogger = require("./middlewares/requestLogger.middleware");
 const securityMiddleware = require("./middlewares/security.middleware");
 const requestIdMiddleware = require("./middlewares/requestId.middleware");
 //morgan
-if (process.env.NODE_ENV === "development") {
+if (config.env === "development") {
   app.use(morgan("dev"));
 }
 // Middleware

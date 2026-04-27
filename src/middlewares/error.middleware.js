@@ -1,10 +1,11 @@
 const logger = require("../utils/logger");
+const config = require("../config/config");
 
 const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (process.env.NODE_ENV === "development") {
+  if (config.env === "development") {
     logger.error("Error 💥:", { message: err.message, stack: err.stack });
     return res.status(err.statusCode).json({
       status: err.status,
@@ -15,7 +16,7 @@ const globalErrorHandler = (err, req, res, next) => {
   }
 
   // Production
-  if (process.env.NODE_ENV === "production") {
+  if (config.env === "production") {
     // Log error for internal tracking
     logger.error(err.message, {
       requestId: req.requestId,
