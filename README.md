@@ -49,18 +49,45 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    ```
 
 3. **Environment Setup**:
-   Create a `.env` file in the root directory and add:
+   The application uses environment-specific `.env` files. Create the following files in the root directory:
 
+   **`.env.development`** (for local development):
    ```env
    PORT=5000
    DB_HOST=localhost
    DB_USER=root
    DB_PASSWORD=your_password
    DB_NAME=taskflow_db
-   JWT_SECRET=your_super_secret_key
-   JWT_EXPIRES_IN=90d
+   JWT_SECRET=your_dev_secret_key
+   JWT_EXPIRES_IN=1d
    NODE_ENV=development
    ```
+
+   **`.env.test`** (for running tests):
+   ```env
+   PORT=5001
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=your_test_password
+   DB_NAME=taskflow_test_db
+   JWT_SECRET=your_test_secret_key
+   JWT_EXPIRES_IN=1h
+   NODE_ENV=test
+   ```
+
+   **`.env.production`** (template for production):
+   ```env
+   PORT=5000
+   DB_HOST=your_prod_db_host
+   DB_USER=your_prod_db_user
+   DB_PASSWORD=your_prod_db_password
+   DB_NAME=taskflow_db
+   JWT_SECRET=your_secure_prod_key
+   JWT_EXPIRES_IN=7d
+   NODE_ENV=production
+   ```
+
+   The application uses a **Centralized Config Loader** (`src/config/config.js`) to automatically load the correct file based on the `NODE_ENV` environment variable.
 
 4. **Database Setup**:
    - Ensure MySQL is running (XAMPP/Docker).
@@ -442,12 +469,13 @@ taskflow-api/
 - Verified seamless database connectivity and established stable health-check responses.
 - Confirmed API reachability on port 5000, ensuring the containerized environment is production-ready.
 
-#### Day 53: Database Persistence & Robust Containerization
+#### Day 54: Secure Configuration & Environment Management
 
-- Implemented named volumes for MySQL to ensure data persistence across container restarts.
-- Optimized `docker-compose.yml` with a `restart: always` policy and port conflict resolution (switched host port to 3307).
-- Added an automated database initialization script (`init.sql`) to handle schema setup on first boot.
-- Verified data integrity by performing persistence tests on user registration records.
+- Implemented a **Centralized Config Loader** (`src/config/config.js`) to unify configuration management.
+- Transitioned from a single `.env` file to **environment-specific files** (`.env.development`, `.env.test`, `.env.production`).
+- Hardened security by removing all hardcoded secrets and ensuring they are loaded strictly from environment variables.
+- Standardized error handling and logging to use the new configuration system.
+- Fixed cross-environment casing issues for improved deployment reliability.
 
 
 ---
