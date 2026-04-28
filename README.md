@@ -51,14 +51,28 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 3. **Environment Setup**:
    The application uses environment-specific `.env` files. Create the following files in the root directory:
 
+   **`.env`** (for Docker Compose and local overrides):
+   ```env
+   PORT=5000
+   NODE_ENV=development
+   DB_HOST=db
+   DB_USER=root
+   DB_PASSWORD=REMOVED
+   DB_NAME=taskflow_db
+   JWT_SECRET=your_secret_key
+   JWT_EXPIRES_IN=1d
+   MYSQL_ROOT_PASSWORD=REMOVED
+   MYSQL_DATABASE=taskflow_db
+   ```
+
    **`.env.development`** (for local development):
    ```env
    PORT=5000
    DB_HOST=localhost
    DB_USER=root
-   DB_PASSWORD=your_password
+   DB_PASSWORD=
    DB_NAME=taskflow_db
-   JWT_SECRET=your_dev_secret_key
+   JWT_SECRET=REMOVED
    JWT_EXPIRES_IN=1d
    NODE_ENV=development
    ```
@@ -111,10 +125,9 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    npm test
    ```
 
-7. **Docker Setup**:
-
-   You can also run the entire application (API and Database) via Docker:
+    You can also run the entire application (API and Database) via Docker:
    ```bash
+   # Ensure you have a .env file created first
    docker-compose up -d --build
    ```
 
@@ -473,9 +486,15 @@ taskflow-api/
 
 - Implemented a **Centralized Config Loader** (`src/config/config.js`) to unify configuration management.
 - Transitioned from a single `.env` file to **environment-specific files** (`.env.development`, `.env.test`, `.env.production`).
-- Hardened security by removing all hardcoded secrets and ensuring they are loaded strictly from environment variables.
 - Standardized error handling and logging to use the new configuration system.
 - Fixed cross-environment casing issues for improved deployment reliability.
+
+#### Day 55: Docker Environment Verification & Secret Removal
+
+- Removed all hardcoded secrets from `docker-compose.yml` for enhanced security.
+- Implemented `env_file` support in Docker Compose to load variables from a centralized `.env` file.
+- Verified end-to-end container connectivity and database health in the orchestrated environment.
+- Standardized the Docker setup to align with the environment-specific configuration system.
 
 
 ---
