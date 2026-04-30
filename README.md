@@ -1,6 +1,6 @@
 #  TaskFlow API
 
-A robust, secure, and scalable Task Management API built with Node.js, Express, and MySQL. TaskFlow follows a Clean Architecture to provide a seamless experience for user authentication and task CRUD operations with advanced querying capabilities.
+A robust, secure, and scalable Task Management API built with Node.js, Express, and MySQL. TaskFlow follows a [Clean Architecture](ARCHITECTURE.md) to provide a seamless experience for user authentication and task CRUD operations with advanced querying capabilities.
 
 ---
 
