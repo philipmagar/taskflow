@@ -14,6 +14,7 @@ This document describes the architecture for the TaskFlow Node.js Express API, i
 - **Testing:** Jest 30.3.0, Supertest 7.2.2
 - **Security Middleware:** Helmet (Headers), HPP (Parameter Pollution), Express-Rate-Limit
 - **Environment:** dotenv 17.3.1
+- **Containerization:** Docker & Docker Compose
 
 ## Architecture Layers
 
@@ -56,6 +57,12 @@ This document describes the architecture for the TaskFlow Node.js Express API, i
 - **Mocking System:** Isolated tests using database mocks to ensure reliability without infrastructure dependencies.
 - **Security Audit:** Automated verification of security filters and middleware.
 
+### 9. Infrastructure Layer
+- **Docker:** Application and database are containerized for environment consistency.
+- **Docker Compose:** Orchestrates multi-container services and handles networking.
+- **Service Name Networking:** Uses internal Docker DNS for service-to-service communication.
+- **Health Checks:** Ensures database readiness before application startup.
+
 ## System Flow Diagram
 
 ```mermaid
@@ -87,6 +94,7 @@ graph TD
 | Performance | Optimized queries & caching | MySQL Indexes, In-memory Cache |
 | Reliability | Comprehensive Testing | Jest, Supertest, Mocking |
 | Traceability | End-to-end request tracking | UUID (X-Request-ID) |
+| Containerization | Service Orchestration & Isolation | Docker Compose |
 
 ## Development & Deployment Scripts
 
@@ -94,7 +102,9 @@ graph TD
 {
   "dev": "nodemon src/server.js",    // Development with auto-reload
   "start": "node src/server.js",     // Production start
-  "test": "jest --config ..."        // Automated test suite
+  "test": "jest --config ...",        // Automated test suite
+  "docker:up": "docker-compose up -d", // Start infrastructure
+  "docker:down": "docker-compose down" // Stop infrastructure
 }
 ```
 
