@@ -496,6 +496,21 @@ taskflow-api/
 - Verified end-to-end container connectivity and database health in the orchestrated environment.
 - Standardized the Docker setup to align with the environment-specific configuration system.
 
+#### Day 56: Docker Networking & Troubleshooting Knowledge
+
+- **Service Name Networking**: Understood how Docker Compose creates a default bridge network where containers can communicate using their service names (e.g., `DB_HOST=db` instead of `localhost`).
+- **Container Connection Testing**: Verified that the API successfully waits for the MySQL service to be healthy (`service_healthy` condition) before attempting connection, preventing startup crashes.
+- **Debug Commands Learned**:
+  - `docker-compose logs -f app`: Monitor live application logs.
+  - `docker-compose exec db mysql -u root -p`: Access the database directly inside the container.
+  - `docker-compose ps`: Check status and health of all orchestrated services.
+- **Common Errors Understood**:
+  - `ECONNREFUSED`: Occurs when the app tries to connect before the database is ready.
+  - Port Conflict: Handled by mapping external port 3307 to internal 3306 for local DB access without clashing with host MySQL instances.
+  - Environment Sync: Ensured `.env` variables are correctly passed to containers via `env_file`.
+
+---
+
 
 ---
 
