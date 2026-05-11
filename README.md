@@ -18,6 +18,12 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
   - **Rate Limiting**: Brute-force protection for all API endpoints.
   - **CORS**: Restricted origins for production security.
   - **Input Validation**: Strict validation using `express-validator`.
+- ** Hardened Containerization**:
+  - **Multi-Stage Docker Build**: Lean `node:18-alpine` image with production-only dependencies (161 MB).
+  - **Non-Root User**: Container runs as `appuser:appgroup` — no UID 0.
+  - **Read-Only Filesystem**: Root FS is read-only; only `/tmp` and `logs/` writable via `tmpfs`.
+  - **No New Privileges**: `security_opt: no-new-privileges:true` on all services.
+  - **Resource Limits**: App container capped at 512 MB RAM / 0.5 CPU.
 - ** Error Handling**: Centralized global error handling with custom `AppError` class and async wrappers.
 
 ---
@@ -30,6 +36,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 - **Validation**: Express Validator
 - **Logging**: Morgan & Winston
 - **Environment**: Dotenv
+- **Containerization**: Docker (multi-stage, Alpine) & Docker Compose
 
 ---
 
@@ -127,9 +134,20 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 
     You can also run the entire application (API and Database) via Docker:
    ```bash
-   # Ensure you have a .env file created first
-   docker-compose up -d --build
+   # Build the hardened production image
+   npm run docker:build
+
+   # Start API + MySQL in the background
+   npm run docker:up
+
+   # Tail live application logs
+   npm run docker:logs
+
+   # Stop and remove containers
+   npm run docker:down
    ```
+
+   > **Security note:** The container runs as a non-root user (`appuser`), with a read-only root filesystem and no-new-privileges enforced.
 
 
 ---
@@ -179,7 +197,14 @@ taskflow-api/
 │   ├── validators/      # Schema-based validations
 │   ├── app.js           # App configuration
 │   └── server.js        # Entry point
-├── .env                 # Environment variables
+├── docker/
+│   └── mysql/init/      # MySQL initialization SQL
+├── tests/               # Unit & integration test suites
+├── .dockerignore        # Files excluded from Docker build context
+├── docker-compose.yml   # Multi-service orchestration (app + db)
+├── Dockerfile           # Multi-stage hardened build
+├── ARCHITECTURE.md      # Detailed architecture documentation
+├── .env                 # Environment variables (Docker Compose)
 └── package.json         # Dependencies & Scripts
 ```
 
@@ -508,6 +533,18 @@ taskflow-api/
   - `ECONNREFUSED`: Occurs when the app tries to connect before the database is ready.
   - Port Conflict: Handled by mapping external port 3307 to internal 3306 for local DB access without clashing with host MySQL instances.
   - Environment Sync: Ensured `.env` variables are correctly passed to containers via `env_file`.
+
+#### Day 57: Docker Container Security Hardening
+
+- **Multi-Stage Build**: Restructured `Dockerfile` into a `builder` stage (all deps) and a lean `production` stage (prod deps only), reducing the final image to **161 MB**.
+- **Alpine Base Image**: Switched to `node:18-alpine` for a minimal OS attack surface.
+- **Non-Root User**: Added a dedicated `appuser:appgroup` system account; the API process no longer runs as UID 0.
+- **Read-Only Root Filesystem**: Set `read_only: true` in `docker-compose.yml`; writable paths (`/tmp`, `logs/`) provided via `tmpfs` mounts.
+- **No New Privileges**: Applied `security_opt: no-new-privileges:true` to both the `app` and `db` services to block runtime privilege escalation.
+- **Resource Limits**: Capped the app container at 512 MB memory and 0.5 CPU cores via `deploy.resources`.
+- **Expanded `.dockerignore`**: Excluded `tests/`, `coverage/`, env files, docs, scratch scripts, and logs from the build context.
+- **npm Scripts**: Added `docker:build`, `docker:logs` scripts to `package.json` alongside existing `docker:up` / `docker:down`.
+- **Documentation**: Updated `ARCHITECTURE.md` with a full Container Security section reflecting all hardening measures.
 
 ---
 
