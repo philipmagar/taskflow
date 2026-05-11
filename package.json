@@ -6,7 +6,11 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "jest --config src/config/jest.config.js --runInBand",
-    "test:coverage": "jest --config src/config/jest.config.js --runInBand --coverage"
+    "test:coverage": "jest --config src/config/jest.config.js --runInBand --coverage",
+    "docker:build": "docker build -t taskflow-api:latest --target production .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app"
   },
   "keywords": [],
   "author": "",

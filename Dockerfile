@@ -1,20 +1,51 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18-alpine
+# ─────────────────────────────────────────────
+# Stage 1: Builder
+# Install ALL deps (including dev) so we can
+# run any build steps if needed in the future.
+# ─────────────────────────────────────────────
+FROM node:18-alpine AS builder
 
-# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# Copy manifests first for better layer caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install all dependencies (dev + prod)
+RUN npm ci
 
-# Copy the rest of the application code
+# Copy application source
 COPY . .
 
-# Expose the port the app runs on
+
+# ─────────────────────────────────────────────
+# Stage 2: Production
+# Lean, secure image with only what is needed
+# to run the API in production.
+# ─────────────────────────────────────────────
+FROM node:18-alpine AS production
+
+# Create a non-root user & group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /usr/src/app
+
+# Copy manifests
+COPY package*.json ./
+
+# Install ONLY production dependencies
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy application source from builder stage
+COPY --from=builder /usr/src/app/src ./src
+
+# Transfer ownership of the workdir to the non-root user
+RUN chown -R appuser:appgroup /usr/src/app
+
+# Switch to non-root user
+USER appuser
+
+# Expose application port
 EXPOSE 5000
 
-# Command to run the application
-CMD ["npm", "start"]
+# Start the server
+CMD ["node", "src/server.js"]

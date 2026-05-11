@@ -58,10 +58,13 @@ This document describes the architecture for the TaskFlow Node.js Express API, i
 - **Security Audit:** Automated verification of security filters and middleware.
 
 ### 9. Infrastructure Layer
-- **Docker:** Application and database are containerized for environment consistency.
-- **Docker Compose:** Orchestrates multi-container services and handles networking.
-- **Service Name Networking:** Uses internal Docker DNS for service-to-service communication.
-- **Health Checks:** Ensures database readiness before application startup.
+- **Docker (Multi-Stage Build):** A two-stage build (`builder` → `production`) keeps the final image lean — only production code and `node_modules` are included. Base image is `node:18-alpine`.
+- **Non-Root User:** The container runs as a dedicated `appuser:appgroup` (no UID 0), eliminating container-escape privilege vectors.
+- **Read-Only Root Filesystem:** The container's root FS is mounted read-only; only `/tmp` and the `logs/` directory are writable via `tmpfs` mounts.
+- **No New Privileges:** `security_opt: no-new-privileges:true` prevents the process from acquiring additional Linux capabilities at runtime.
+- **Resource Limits:** Memory capped at 512 MB and CPU at 0.5 cores; prevents a single container from exhausting the host.
+- **Docker Compose:** Orchestrates the `app` + `db` services on an isolated bridge network (`taskflow-network`).
+- **Health Checks:** MySQL health check (`mysqladmin ping`) with `start_period: 30s` ensures the DB is ready before the API starts.
 
 ## System Flow Diagram
 
@@ -94,23 +97,29 @@ graph TD
 | Performance | Optimized queries & caching | MySQL Indexes, In-memory Cache |
 | Reliability | Comprehensive Testing | Jest, Supertest, Mocking |
 | Traceability | End-to-end request tracking | UUID (X-Request-ID) |
-| Containerization | Service Orchestration & Isolation | Docker Compose |
+| Containerization | Multi-stage build, Non-root user | Docker, Docker Compose |
+| Container Security | Read-only FS, No new privileges, Resource limits | Docker security_opt, tmpfs, deploy.resources |
 
 ## Development & Deployment Scripts
 
 ```json
 {
-  "dev": "nodemon src/server.js",    // Development with auto-reload
-  "start": "node src/server.js",     // Production start
-  "test": "jest --config ...",        // Automated test suite
-  "docker:up": "docker-compose up -d", // Start infrastructure
-  "docker:down": "docker-compose down" // Stop infrastructure
+  "dev":            "nodemon src/server.js",               // Development with auto-reload
+  "start":          "node src/server.js",                  // Production start
+  "test":           "jest --config ...",                   // Automated test suite
+  "test:coverage":  "jest ... --coverage",                 // Coverage report
+  "docker:build":   "docker build -t taskflow-api:latest", // Build hardened image
+  "docker:up":      "docker-compose up -d",               // Start all services
+  "docker:down":    "docker-compose down",                // Stop all services
+  "docker:logs":    "docker-compose logs -f app"          // Tail app logs
 }
 ```
 
 ## Architecture Benefits
 
 ✅ **Security-First:** Multi-layer defense (Headers, Scanner, IP Blocking, RBAC)  
+✅ **Container Security:** Non-root user · Read-only FS · No-new-privileges · Resource limits  
+✅ **Minimal Attack Surface:** Alpine base image + production-only `node_modules` (161 MB image)  
 ✅ **Data Consistency:** Atomic transactions in service layer  
 ✅ **High Performance:** DB indexing and TTL caching  
 ✅ **Observability:** Request ID tracking + Structured Winston JSON logging  

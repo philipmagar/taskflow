@@ -1,10 +1,17 @@
 node_modules
 npm-debug.log
 .git
+.gitignore
 .env
+.env.*
 coverage
+coverage_report.txt
 logs
 tests
 test_output.txt
 test_concurrent.js
 refactor_tests.js
+scratch
+docker
+README.md
+ARCHITECTURE.md

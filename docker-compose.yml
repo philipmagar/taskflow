@@ -1,9 +1,10 @@
-
-
 services:
   app:
-    build: .
-    restart: always
+    build:
+      context: .
+      target: production
+    image: taskflow-api:latest
+    restart: unless-stopped
     ports:
       - "5000:5000"
     env_file:
@@ -13,23 +14,43 @@ services:
         condition: service_healthy
     networks:
       - taskflow-network
+    # ── Security hardening ───────────────────────
+    security_opt:
+      - no-new-privileges:true   # Prevent privilege escalation
+    read_only: true              # Root filesystem is read-only
+    tmpfs:
+      - /tmp                     # Allow writes to /tmp only
+      - /usr/src/app/logs        # Allow log writes
+    # ── Resource limits ──────────────────────────
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.5"
+        reservations:
+          memory: 128m
 
   db:
     image: mysql:8.0
+    restart: unless-stopped
     ports:
       - "3307:3306"
     env_file:
       - .env
     volumes:
       - db_data:/var/lib/mysql
-      - ./docker/mysql/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/mysql/init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     networks:
       - taskflow-network
+    # ── Security hardening ───────────────────────
+    security_opt:
+      - no-new-privileges:true
 
 networks:
   taskflow-network:
