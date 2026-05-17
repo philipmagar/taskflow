@@ -6,12 +6,12 @@ const securityTracker = require('../../../src/utils/securityTrack');
 const apiResponse = require('../../../src/utils/apiResponse');
 const AppError = require('../../../src/utils/appError');
 
-jest.mock('../src/models/user.model');
+jest.mock('../../../src/models/user.model');
 jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
-jest.mock('../src/utils/securityTrack');
-jest.mock('../src/utils/apiResponse');
-jest.mock('../src/utils/logger');
+jest.mock('../../../src/utils/securityTrack');
+jest.mock('../../../src/utils/apiResponse');
+jest.mock('../../../src/utils/logger');
 
 describe('Auth Controller Units', () => {
     let req, res, next;

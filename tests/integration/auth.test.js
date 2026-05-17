@@ -1,6 +1,6 @@
 const request = require("supertest");
-const app = require('../../src/app");
-const securityTrack = require('../../src/utils/securityTrack");
+const app = require('../../src/app');
+const securityTrack = require('../../src/utils/securityTrack');
 
 describe("Auth API", () => {
   beforeEach(() => {
@@ -121,7 +121,7 @@ describe("Auth API", () => {
     it("should block member from reaching admin route", async () => {
       // Login as member
       const hashedPassword = await require("bcryptjs").hash("123456", 10);
-      await require('../../src/config/db").query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
+      await require('../../src/config/db').query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', 
         ['member_rbac@test.com', hashedPassword, 'member']);
 
       const loginRes = await request(app).post("/api/v1/auth/login").send({

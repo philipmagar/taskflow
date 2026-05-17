@@ -3,9 +3,9 @@ const TaskService = require('../../../src/services/task.service');
 const apiResponse = require('../../../src/utils/apiResponse');
 const AppError = require('../../../src/utils/appError');
 
-jest.mock('../src/services/task.service');
-jest.mock('../src/utils/apiResponse');
-jest.mock('../src/utils/logger');
+jest.mock('../../../src/services/task.service');
+jest.mock('../../../src/utils/apiResponse');
+jest.mock('../../../src/utils/logger');
 
 describe('Task Controller Units', () => {
     let req, res, next;

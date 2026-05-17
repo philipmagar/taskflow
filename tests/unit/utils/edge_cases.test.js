@@ -1,4 +1,4 @@
-const logger = require('../../../src/utils/logger");
+const logger = require('../../../src/utils/logger');
 const request = require('supertest');
 const app = require('../../../src/app');
 const jwt = require('jsonwebtoken');
@@ -19,7 +19,7 @@ describe("Logger & Security Edge Cases", () => {
         const oldEnv = process.env.NODE_ENV;
         process.env.NODE_ENV = "production";
         jest.resetModules();
-        const prodLogger = require('../../../src/utils/logger");
+        const prodLogger = require('../../../src/utils/logger');
         prodLogger.transports.forEach(t => t.silent = false);
         prodLogger.info("Prod log");
         prodLogger.error(new Error("Prod Error"));

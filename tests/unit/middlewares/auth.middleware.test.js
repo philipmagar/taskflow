@@ -25,7 +25,7 @@ describe('Authorization Middleware Units', () => {
             expect(next).toHaveBeenCalledWith(expect.any(AppError));
             const error = next.mock.calls[0][0];
             expect(error.statusCode).toBe(401);
-            expect(error.message).toContain('not authorized');
+            expect(error.message).toContain('You are not logged in!');
         });
 
         it('should fail if token is malformed (no Bearer)', () => {

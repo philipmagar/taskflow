@@ -2,7 +2,7 @@ const orderService = require('../../../src/services/order.service');
 const pool = require('../../../src/config/db');
 const AppError = require('../../../src/utils/appError');
 
-jest.mock('../src/config/db');
+jest.mock('../../../src/config/db');
 
 describe('Order Service Units', () => {
     let mockConnection;

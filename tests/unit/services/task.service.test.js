@@ -4,9 +4,9 @@ const cache = require('../../../src/utils/cache');
 const TaskModel = require('../../../src/models/task.model');
 const AppError = require('../../../src/utils/appError');
 
-jest.mock('../src/config/db');
-jest.mock('../src/utils/cache');
-jest.mock('../src/models/task.model');
+jest.mock('../../../src/config/db');
+jest.mock('../../../src/utils/cache');
+jest.mock('../../../src/models/task.model');
 
 describe('Task Service Business Logic Units', () => {
     let mockConnection;

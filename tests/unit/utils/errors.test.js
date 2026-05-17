@@ -1,5 +1,6 @@
-const globalErrorHandler = require('../../../src/middlewares/error.middleware");
-const AppError = require('../../../src/utils/appError");
+const globalErrorHandler = require('../../../src/middlewares/error.middleware');
+const AppError = require('../../../src/utils/appError');
+const config = require('../../../src/config/config');
 
 describe("Error Handling Units", () => {
     let req, res, next;
@@ -19,8 +20,8 @@ describe("Error Handling Units", () => {
     });
 
     it("should handle operational errors in production environment", () => {
-        const originalEnv = process.env.NODE_ENV;
-        process.env.NODE_ENV = "production";
+        const originalEnv = config.env;
+        config.env = "production";
         
         const err = new AppError("Trusted Error", 400);
         err.isOperational = true;
@@ -33,12 +34,12 @@ describe("Error Handling Units", () => {
             message: "Trusted Error"
         }));
 
-        process.env.NODE_ENV = originalEnv;
+        config.env = originalEnv;
     });
 
     it("should hide non-operational errors in production", () => {
-        const originalEnv = process.env.NODE_ENV;
-        process.env.NODE_ENV = "production";
+        const originalEnv = config.env;
+        config.env = "production";
         
         const err = new Error("Secret Database Error");
 
@@ -49,12 +50,12 @@ describe("Error Handling Units", () => {
             message: "Something went very wrong!"
         }));
 
-        process.env.NODE_ENV = originalEnv;
+        config.env = originalEnv;
     });
 
     it("should include stack trace in development", () => {
-        const originalEnv = process.env.NODE_ENV;
-        process.env.NODE_ENV = "development";
+        const originalEnv = config.env;
+        config.env = "development";
         
         const err = new AppError("Dev Error", 401);
         globalErrorHandler(err, req, res, next);
@@ -63,6 +64,6 @@ describe("Error Handling Units", () => {
             stack: expect.any(String)
         }));
 
-        process.env.NODE_ENV = originalEnv;
+        config.env = originalEnv;
     });
 });

@@ -1,0 +1,51 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: taskflow_test
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Vulnerability Scan
+      run: npm audit --audit-level=high
+
+    - name: Run Tests with Coverage
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3307
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_NAME: taskflow_test
+        NODE_ENV: test
+        JWT_SECRET: supersecretkey123
+        JWT_EXPIRES_IN: 1d
+        PORT: 5000
+      run: npm run test:coverage
+
+    - name: Build Docker Image (Dry Run)
+      run: docker build -t taskflow-api:test --target production .

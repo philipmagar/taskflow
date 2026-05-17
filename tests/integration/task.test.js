@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require('../../src/app");
+const app = require('../../src/app');
 
 describe("Task API", () => {
 
@@ -56,7 +56,7 @@ describe("Task API", () => {
   });
 
   describe("Task CRUD Ops (Integration)", () => {
-    const pool = require('../../src/config/db");
+    const pool = require('../../src/config/db');
     const bcrypt = require("bcryptjs");
     let token;
 
