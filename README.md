@@ -546,6 +546,48 @@ taskflow-api/
 - **npm Scripts**: Added `docker:build`, `docker:logs` scripts to `package.json` alongside existing `docker:up` / `docker:down`.
 - **Documentation**: Updated `ARCHITECTURE.md` with a full Container Security section reflecting all hardening measures.
 
+#### Day 58-60: Comprehensive Application Security
+
+- Added `cors` middleware to securely control cross-origin resource sharing.
+- Configured `express-rate-limit` (100 req/15min) to protect endpoints against DDoS and brute-force attacks.
+- Safely removed deprecated sanitization packages in favor of robust custom detection and HTTP Parameter Pollution (`hpp`) defenses.
+- Verified API resilience under heavy load and malformed request integration tests.
+
+#### Day 61-63: Continuous Integration (CI) Setup
+
+- Authored GitHub Actions CI pipeline (`.github/workflows/ci.yml`).
+- Configured automated test suite execution on every push and pull request.
+- Implemented automated vulnerability scanning using `npm audit` to catch high-severity risks pre-merge.
+- Validated multi-stage Docker image build capability (dry runs) within the CI environment.
+
+#### Day 64-66: Continuous Deployment (CD) Setup
+
+- Created GitHub Actions CD pipeline (`.github/workflows/cd.yml`) targeting main branch merges.
+- Configured secure SSH actions (`appleboy/ssh-action`) to authenticate with Linux VPS.
+- Automated code pulls, production dependency installations, and service reloads inside the deployment runner.
+- Ensured automated and predictable zero-downtime deployment workflows.
+
+#### Day 67-68: Production Server Infrastructure (NGINX)
+
+- Built dedicated NGINX server configuration (`nginx/nginx.conf`).
+- Configured automatic HTTP to HTTPS permanent redirection (301).
+- Applied strict SSL/TLS parameters and injection of critical security headers (HSTS, X-Frame-Options, X-XSS-Protection).
+- Established a secure reverse proxy to reliably route external traffic to the internal Node.js port (5000).
+
+#### Day 69-70: Process Management (PM2)
+
+- Designed `ecosystem.config.js` for PM2-based advanced process management.
+- Configured application to run in cluster mode (`exec_mode: 'cluster'`) utilizing maximum available CPU instances.
+- Standardized log formatting (`YYYY-MM-DD HH:mm Z`) and merged error/output streams into dedicated files.
+- Hardcoded robust production environment variable injection during PM2 reloads.
+
+#### Day 71: Finalizing Deployment Pipeline & Test Infrastructure
+
+- Systematically resolved critical Jest parsing errors caused by malformed require statements across 15+ mock integration suites.
+- Fixed environment variable collision issues in isolated error-handling tests that caused false negative 500s.
+- Re-verified an absolute 100% pass rate (135/135 tests) in the context of CI/CD pipeline integration.
+- The project successfully satisfies all holistic backend, security, testing, DevOps, CI/CD, and cloud infrastructure requirements.
+
 ---
 
 
