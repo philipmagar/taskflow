@@ -20,7 +20,7 @@ const setupMockFallback = () => {
   const mockQuery = async (sql, params = []) => {
     sql = sql.toLowerCase();
     
-    // 🟠 DELETE simulation
+    //  DELETE simulation
     if (sql.includes('delete from tasks')) {
       const id = params[0];
       const userId = params[1]; // Only present if checking ownership
@@ -38,7 +38,7 @@ const setupMockFallback = () => {
       return [{ affectedRows: 1 }];
     }
 
-    // 🟡 UPDATE simulation
+    //  UPDATE simulation
     if (sql.includes('update tasks set')) {
       const [title, desc, id] = params;
       const task = storage.tasks.find(t => t.id == id);
@@ -56,7 +56,7 @@ const setupMockFallback = () => {
         return [{ affectedRows: 1 }];
     }
     
-    // 🟢 INSERT simulation
+    //  INSERT simulation
     if (sql.includes('insert into users')) {
       const user = { id: Math.floor(Math.random() * 800) + 100, email: params[0], password: params[1], role: params[2] || 'member' };
       storage.users.push(user);
@@ -76,7 +76,7 @@ const setupMockFallback = () => {
         return [{ insertId: 999, affectedRows: 1 }];
     }
 
-    // 🔵 SELECT simulation
+    //  SELECT simulation
     if (sql.includes('from users')) {
       if (sql.includes('where email = ?')) {
         const found = storage.users.find(u => u.email === params[0]);
@@ -110,8 +110,8 @@ const setupMockFallback = () => {
 
         if (sql.includes('where id = ?')) {
             const taskId = params[0];
-            const found = storage.tasks.find(t => t.id == taskId);
-            return found ? [[found]] : [[]];
+            results = results.filter(t => t.id == taskId);
+            return results.length > 0 ? [[results[0]]] : [[]];
         }
 
         // Sorting

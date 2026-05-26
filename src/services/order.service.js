@@ -11,7 +11,7 @@ exports.createOrder = async (userId, productId, quantity) => {
       throw new AppError("Quantity must be at least 1", 400);
     }
 
-    // 🔴 LOCK PRODUCT ROW
+    //  LOCK PRODUCT ROW
     const [productRows] = await connection.query(
       "SELECT stock FROM products WHERE id = ? FOR UPDATE",
       [productId],
@@ -23,18 +23,18 @@ exports.createOrder = async (userId, productId, quantity) => {
 
     const product = productRows[0];
 
-    // ❌ Not enough stock
+    //  Not enough stock
     if (product.stock < quantity) {
       throw new AppError("Insufficient stock", 400);
     }
 
-    // ✅ Deduct stock
+    //  Deduct stock
     await connection.query(
       "UPDATE products SET stock = stock - ? WHERE id = ?",
       [quantity, productId],
     );
 
-    // ✅ Create order
+    //  Create order
     const [orderResult] = await connection.query(
       "INSERT INTO orders (user_id, product_id, quantity) VALUES (?, ?, ?)",
       [userId, productId, quantity],

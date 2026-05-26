@@ -98,9 +98,9 @@ async function testConcurrency() {
     console.log(`User's internal task_count: ${userTaskCount}`);
     
     if (tasksCount === NUM_REQUESTS && userTaskCount === NUM_REQUESTS) {
-      console.log('✅ TEST PASSED: No race conditions detected. Counts match exactly.');
+      console.log(' TEST PASSED: No race conditions detected. Counts match exactly.');
     } else {
-      console.log('❌ TEST FAILED: Race condition or failures detected.');
+      console.log(' TEST FAILED: Race condition or failures detected.');
     }
   } catch (err) {
     console.error('Failed to verify final state:', err.message);

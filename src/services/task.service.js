@@ -30,7 +30,7 @@ exports.createTask = async (title, description, userId) => {
       throw new AppError("Task title is required", 400);
     }
 
-    // 🔴 LOCK USER ROW to prevent concurrent count mismatch
+    //  LOCK USER ROW to prevent concurrent count mismatch
     const [userRows] = await connection.query(
       "SELECT task_count FROM users WHERE id = ? FOR UPDATE",
       [userId],
@@ -54,7 +54,7 @@ exports.createTask = async (title, description, userId) => {
 
     await connection.commit();
 
-    // 🗑️ Invalidate task cache for this user
+    // ️ Invalidate task cache for this user
     cache.deleteByPrefix(`tasks:user:${userId}`);
 
     return taskResult;
@@ -78,16 +78,13 @@ exports.getTasksByUserId = async (userId, options) => {
 exports.getTasks = async (userId, queryParams) => {
   const cacheKey = buildCacheKey(userId, queryParams);
 
-  // 🔍 Check cache first
   const cachedData = cache.get(cacheKey);
   if (cachedData) {
     return cachedData;
   }
 
-  // 📦 Cache miss → query database
   const tasks = await TaskModel.getTasksAdvanced(userId, queryParams);
 
-  // 💾 Store in cache (60s TTL)
   cache.set(cacheKey, tasks);
 
   return tasks;
@@ -120,12 +117,10 @@ exports.updateTask = async (taskId, userId, data) => {
     description || task.description,
   );
 
-  // 🗑️ Invalidate task cache for this user
   cache.deleteByPrefix(`tasks:user:${userId}`);
 
   return result;
 };
-
 
 exports.deleteTask = async (taskId, userId) => {
   const connection = await pool.getConnection();
@@ -133,16 +128,14 @@ exports.deleteTask = async (taskId, userId) => {
   try {
     await connection.beginTransaction();
 
-    // 🔴 LOCK USER ROW
     const [userRows] = await connection.query(
       "SELECT task_count FROM users WHERE id = ? FOR UPDATE",
-      [userId]
+      [userId],
     );
 
     if (!userRows.length) {
       throw new AppError("User not found", 404);
     }
-
 
     // 1️⃣ Check if task exists and belongs to user
     const [tasks] = await connection.query(
@@ -154,10 +147,8 @@ exports.deleteTask = async (taskId, userId) => {
       throw new AppError("Task not found or access denied", 404);
     }
 
-    // 2️⃣ Delete task
     await connection.query("DELETE FROM tasks WHERE id = ?", [taskId]);
 
-    // 3️⃣ Update user task count (decrement safely)
     await connection.query(
       "UPDATE users SET task_count = GREATEST(0, task_count - 1) WHERE id = ?",
       [userId],
@@ -165,7 +156,6 @@ exports.deleteTask = async (taskId, userId) => {
 
     await connection.commit();
 
-    // 🗑️ Invalidate task cache for this user
     cache.deleteByPrefix(`tasks:user:${userId}`);
 
     return true;
@@ -176,4 +166,3 @@ exports.deleteTask = async (taskId, userId) => {
     connection.release();
   }
 };
-

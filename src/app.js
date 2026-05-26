@@ -11,6 +11,7 @@ const app = express();
 const requestLogger = require("./middlewares/requestLogger.middleware");
 const securityMiddleware = require("./middlewares/security.middleware");
 const requestIdMiddleware = require("./middlewares/requestId.middleware");
+const { metricsMiddleware, metricsEndpoint } = require("./middlewares/metrics.middleware");
 //morgan
 if (config.env === "development") {
   app.use(morgan("dev"));
@@ -35,12 +36,16 @@ app.use(hpp());
 
 app.use(requestIdMiddleware);
 app.use(requestLogger);
+app.use(metricsMiddleware);
 app.use(securityMiddleware);
 
 // Health Check Endpoint
 app.get("/api/v1/health", (req, res) => {
   apiResponse.success(res, "API is running");
 });
+
+// Metrics Endpoint
+app.get("/metrics", metricsEndpoint);
 
 app.use("/api/v1/orders", require("./routes/order.routes"));
 // Routes

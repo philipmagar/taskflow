@@ -51,13 +51,13 @@ exports.getTasksAdvanced = async (userId, queryParams) => {
   let query = "SELECT * FROM tasks WHERE user_id = ?";
   const values = [userId];
 
-  // 🔍 Filtering
+  //  Filtering
   if (queryParams.status) {
     query += " AND status = ?";
     values.push(queryParams.status);
   }
 
-  // 🔽 Sorting
+  //  Sorting
   if (queryParams.sort) {
     const allowedSortFields = ["created_at", "title"];
     if (allowedSortFields.includes(queryParams.sort)) {
@@ -67,7 +67,7 @@ exports.getTasksAdvanced = async (userId, queryParams) => {
     query += " ORDER BY created_at DESC";
   }
 
-  // 📄 Pagination
+  //  Pagination
   const limit = parseInt(queryParams.limit) || 10;
   const page = parseInt(queryParams.page) || 1;
   const offset = (page - 1) * limit;
