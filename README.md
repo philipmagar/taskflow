@@ -159,6 +159,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 | Method | Endpoint           | Description              |
 | :----- | :----------------- | :----------------------- |
 | GET    | `/api/v1/health`   | API health check         |
+| GET    | `/metrics`         | Prometheus metrics       |
 
 ### Auth & Users
 
@@ -587,6 +588,13 @@ taskflow-api/
 - Fixed environment variable collision issues in isolated error-handling tests that caused false negative 500s.
 - Re-verified an absolute 100% pass rate (135/135 tests) in the context of CI/CD pipeline integration.
 - The project successfully satisfies all holistic backend, security, testing, DevOps, CI/CD, and cloud infrastructure requirements.
+
+#### Day 72: System Metrics and Prometheus Integration
+
+- Installed `prom-client` to gather system and HTTP performance metrics.
+- Added a custom metrics middleware to track `http_request_duration_seconds`.
+- Exposed a public `/metrics` endpoint formatted for Prometheus scraping.
+- Integrated a Prometheus Docker container within `docker-compose.yml` to securely collect application metrics.
 
 ---
 
