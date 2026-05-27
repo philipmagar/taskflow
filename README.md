@@ -596,8 +596,12 @@ taskflow-api/
 - Exposed a public `/metrics` endpoint formatted for Prometheus scraping.
 - Integrated a Prometheus Docker container within `docker-compose.yml` to securely collect application metrics.
 
----
+#### Day 73: Grafana Integration and Live Monitoring
 
+- Integrated Grafana container into the docker-compose orchestration.
+- Configured automated provisioning for the Prometheus data source.
+- Designed and provisioned a custom live monitoring dashboard for Node.js metrics (uptime, memory usage).
+- Verified seamless networking between Prometheus, Grafana, and the Node.js API.
 
 ---
 
