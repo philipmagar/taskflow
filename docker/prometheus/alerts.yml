@@ -1,0 +1,38 @@
+groups:
+  - name: taskflow_alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes > 200 * 1024 * 1024
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory Usage on {{ $labels.instance }}"
+          description: "{{ $labels.instance }} is using more than 200MB of memory."
+
+      - alert: HighCpuUsage
+        expr: rate(process_cpu_user_seconds_total[1m]) > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU Usage on {{ $labels.instance }}"
+          description: "{{ $labels.instance }} has CPU usage above 80% for 2 minutes."
+
+      - alert: SlowRequests
+        expr: rate(http_request_duration_seconds_sum[1m]) / rate(http_request_duration_seconds_count[1m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow requests on {{ $labels.instance }}"
+          description: "Average request latency on {{ $labels.instance }} is above 1 second."
