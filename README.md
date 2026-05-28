@@ -603,6 +603,17 @@ taskflow-api/
 - Designed and provisioned a custom live monitoring dashboard for Node.js metrics (uptime, memory usage).
 - Verified seamless networking between Prometheus, Grafana, and the Node.js API.
 
+#### Day 74: Prometheus Alerting & Dashboard Integration
+
+- Configured a dedicated `alerts.yml` rule file in Prometheus for critical system alerts.
+- Added specific alert triggers for:
+  - **API Downtime**: Triggers when the instance is completely unreachable.
+  - **High Memory Usage**: Warns when resident memory exceeds 200MB.
+  - **High CPU Usage**: Warns when CPU utilization crosses the 80% threshold.
+  - **Slow Requests**: Detects average API latency spikes exceeding 1 second.
+- Integrated an "Active Alerts" panel directly into the main Grafana dashboard to increase alert visibility.
+- Verified volume mounting and rule loading from within the `docker-compose.yml` infrastructure.
+
 ---
 
 
