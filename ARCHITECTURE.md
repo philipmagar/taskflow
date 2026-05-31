@@ -66,6 +66,11 @@ This document describes the architecture for the TaskFlow Node.js Express API, i
 - **Docker Compose:** Orchestrates the `app` + `db` services on an isolated bridge network (`taskflow-network`).
 - **Health Checks:** MySQL health check (`mysqladmin ping`) with `start_period: 30s` ensures the DB is ready before the API starts.
 
+### 10. Monitoring and Notification Layer
+- **Prometheus:** Scrapes metrics from the API and evaluates alerting rules.
+- **Alertmanager:** Handles alerts sent by Prometheus, deduplicates and groups them, and routes them to configured receivers (e.g., Slack, Email, Webhooks).
+- **Grafana:** Connects to Prometheus for live visualization of metrics and dashboards.
+
 ## System Flow Diagram
 
 ```mermaid
@@ -85,6 +90,9 @@ graph TD
     I -->|HTTP Response<br/>X-Request-ID Header| A
     B-.-|Structured Logs| L[Winston Logger]
     L -->|Rotation| M[(Log Files<br/>error.log, combined.log)]
+    Prom[Prometheus] -.->|Scrape Metrics| B
+    Prom -->|Trigger Alerts| AM[Alertmanager]
+    AM -->|Send Notifications| Notif[Slack / Email / Webhook]
 ```
 
 ## Key Components

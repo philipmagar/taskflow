@@ -72,12 +72,13 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    MYSQL_DATABASE=taskflow_db
    ```
 
-   **`.env.development`** (for local development):
+   **`.env.development`** (for local development, connecting to Docker DB on port 3307):
    ```env
    PORT=5000
    DB_HOST=localhost
+   DB_PORT=3307
    DB_USER=root
-   DB_PASSWORD=
+   DB_PASSWORD=rootpassword
    DB_NAME=taskflow_db
    JWT_SECRET=REMOVED
    JWT_EXPIRES_IN=1d
@@ -146,6 +147,13 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    # Stop and remove containers
    npm run docker:down
    ```
+
+   **Viewing the Services**
+   Once Docker Compose is running, you can access:
+   - **TaskFlow API:** `http://localhost:5000/api/v1/health`
+   - **Prometheus (Metrics):** `http://localhost:9090`
+   - **Grafana (Live Dashboards):** `http://localhost:3000` *(Login: admin / admin)*
+   - **Alertmanager (Notifications):** `http://localhost:9093`
 
    > **Security note:** The container runs as a non-root user (`appuser`), with a read-only root filesystem and no-new-privileges enforced.
 
@@ -613,6 +621,13 @@ taskflow-api/
   - **Slow Requests**: Detects average API latency spikes exceeding 1 second.
 - Integrated an "Active Alerts" panel directly into the main Grafana dashboard to increase alert visibility.
 - Verified volume mounting and rule loading from within the `docker-compose.yml` infrastructure.
+
+#### Day 75: Alertmanager & Notification Routing
+
+- Integrated the `alertmanager` container into the Docker Compose stack.
+- Configured Prometheus (`prometheus.yml`) to route triggered alerts to the Alertmanager service on port 9093.
+- Created an initial `alertmanager.yml` configuration for grouping, deduplicating, and routing notifications (e.g., Slack, Webhooks, Email).
+- Verified live end-to-end alerting visibility via the browser.
 
 ---
 
