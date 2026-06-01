@@ -1,0 +1,44 @@
+# Cron Automation Setup for Database Backups
+
+To automate the execution of the backup script, you can set up a cron job on your host machine (where Docker is running).
+
+## 1. Make the script executable
+Before scheduling, ensure the backup script is executable:
+```bash
+chmod +x /path/to/taskflow-api/backup_test/backup.sh
+```
+
+## 2. Edit the crontab
+Open the crontab configuration for the current user:
+```bash
+crontab -e
+```
+
+## 3. Add the cron expression
+Add a line to schedule the backup. Here are a few examples:
+
+### Daily Backup at 2:00 AM
+```cron
+0 2 * * * cd /path/to/taskflow-api/backup_test && ./backup.sh >> /path/to/taskflow-api/backup_test/backups/backup.log 2>&1
+```
+
+### Hourly Backup
+```cron
+0 * * * * cd /path/to/taskflow-api/backup_test && ./backup.sh >> /path/to/taskflow-api/backup_test/backups/backup.log 2>&1
+```
+
+### Every 5 Minutes (For Testing Purposes)
+```cron
+*/5 * * * * cd /path/to/taskflow-api/backup_test && ./backup.sh >> /path/to/taskflow-api/backup_test/backups/backup.log 2>&1
+```
+
+> **Note:** Replace `/path/to/taskflow-api` with the actual absolute path to your project repository on your host system.
+
+## 4. Verify the cron job
+To verify that your cron job has been added successfully, run:
+```bash
+crontab -l
+```
+
+## 5. Check cron logs
+To ensure the cron job runs as expected, you can monitor the generated `backup.log` or check the system cron logs (usually found at `/var/log/syslog` or `/var/log/cron` on Linux systems).
