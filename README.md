@@ -629,6 +629,13 @@ taskflow-api/
 - Created an initial `alertmanager.yml` configuration for grouping, deduplicating, and routing notifications (e.g., Slack, Webhooks, Email).
 - Verified live end-to-end alerting visibility via the browser.
 
+#### Day 76: Database Backup & Disaster Recovery
+
+- Created a dedicated `backup_test/backup.sh` script using `mysqldump` to automatically back up the database container data.
+- Built a `restore.sh` script to easily recover database state from SQL dump files.
+- Documented automated backup scheduling using `cron`.
+- Added a comprehensive `DISASTER_RECOVERY.md` detailing step-by-step recovery scenarios (accidental deletion, volume corruption, complete host failure).
+
 ---
 
 
