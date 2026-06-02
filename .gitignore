@@ -1,11 +1,14 @@
 node_modules/
 .env
 .env.*
-logs/
 dist/
 coverage/
-*.log
 .DS_Store
 scratch/
 backups/
 backup_test/backups/*.sql
+
+# Logs – ignore content but track the directory via .gitkeep
+logs/*.log
+logs/*.log.gz
+logs/*.json
