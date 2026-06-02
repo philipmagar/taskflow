@@ -25,6 +25,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
   - **No New Privileges**: `security_opt: no-new-privileges:true` on all services.
   - **Resource Limits**: App container capped at 512 MB RAM / 0.5 CPU.
 - ** Error Handling**: Centralized global error handling with custom `AppError` class and async wrappers.
+- ** Structured Logging**: Domain-isolated Winston child loggers (`auth`, `task`, `http`) with daily rotation, gzip compression, and JSON output in production. See [`LOGGING_POLICY.md`](LOGGING_POLICY.md) for the full logging standard.
 
 ---
 
@@ -34,7 +35,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 - **Framework**: Express.js
 - **Database**: MySQL (using `mysql2` connection pooling)
 - **Validation**: Express Validator
-- **Logging**: Morgan & Winston
+- **Logging**: Winston (structured JSON) + Morgan (dev HTTP) + `winston-daily-rotate-file` (rotation & compression)
 - **Environment**: Dotenv
 - **Containerization**: Docker (multi-stage, Alpine) & Docker Compose
 
@@ -190,31 +191,125 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 
 ---
 
+##  Logging
+
+TaskFlow uses a **domain-isolated Winston logging system** defined in [`src/utils/logger.js`](src/utils/logger.js). All logging standards are documented in [`LOGGING_POLICY.md`](LOGGING_POLICY.md).
+
+### Logger Architecture
+
+```
+logger              → Root logger  (startup / shutdown / general)
+logger.auth         → Auth domain  (JWT, login, role-checks)         → logs/auth-*.log
+logger.task         → Task domain  (CRUD events)                     → logs/task-*.log
+logger.http         → HTTP domain  (request/response pairs)          → logs/combined-*.log
+```
+
+### Log Files
+
+| File | Contents | Retention |
+|------|----------|-----------|
+| `logs/combined-YYYY-MM-DD.log` | All levels, all domains | 14 days |
+| `logs/error-YYYY-MM-DD.log` | Errors only | 14 days |
+| `logs/auth-YYYY-MM-DD.log` | Auth events only | **30 days** |
+| `logs/task-YYYY-MM-DD.log` | Task CRUD events only | 14 days |
+
+> Files are **gzip-compressed** on rotation and auto-cleaned after the retention window.
+> The `logs/` directory is created automatically on startup.
+
+### Log Levels
+
+| Level | When Used |
+|-------|-----------|
+| `error` | Uncaught exceptions, DB failures, programmer errors |
+| `warn` | Auth denials, rate-limit hits, operational errors |
+| `info` | Server ready, login success, task created/updated/deleted |
+| `http` | Every inbound HTTP request (method, status, duration) |
+| `debug` | Verbose diagnostics — development only |
+
+### Production Log Sample (JSON)
+
+```json
+{
+  "level": "info",
+  "message": "Task created",
+  "timestamp": "2026-06-02T03:45:12.000Z",
+  "service": "taskflow-api",
+  "env": "production",
+  "domain": "task",
+  "event": "task.create.success",
+  "requestId": "a1b2c3d4-...",
+  "userId": 42,
+  "taskId": 101
+}
+```
+
+### Development Log Sample (Colourised)
+
+```
+2026-06-02 08:55:21 [auth] rid=a1b2c3d4 info: Token verified – access granted {"userId":42,"role":"user"}
+2026-06-02 08:55:22 [task] rid=a1b2c3d5 info: Task created {"taskId":101}
+```
+
+### Reading Logs
+
+```bash
+# Tail all live logs
+tail -f logs/combined-$(date +%F).log
+
+# Filter errors only
+grep '"level":"error"' logs/combined-$(date +%F).log | jq .
+
+# Trace a single request by ID
+grep 'a1b2c3d4' logs/combined-$(date +%F).log
+
+# View auth events only
+tail -f logs/auth-$(date +%F).log
+```
+
+> Full logging policy including PII rules, event catalogues, and retention details: [`LOGGING_POLICY.md`](LOGGING_POLICY.md)
+
+---
+
 ##  Project Structure
 
 ```text
 taskflow-api/
 ├── src/
-│   ├── config/          # Database & app configurations
-│   ├── controllers/     # Request handling logic
-│   ├── middlewares/     # Auth, Validation, Error middlewares
-│   ├── migrations/      # SQL migration scripts (indexes, schema)
-│   ├── models/          # MySQL database queries
-│   ├── routes/          # API endpoint definitions
-│   ├── services/        # Business logic layer
-│   ├── utils/           # Shared utilities (AppError, catchAsync, apiResponse, cache)
-│   ├── validators/      # Schema-based validations
-│   ├── app.js           # App configuration
-│   └── server.js        # Entry point
+│   ├── config/              # Database & app configuration (config.js, db.js)
+│   ├── controllers/         # Request handling (auth, task, user, order)
+│   ├── middlewares/         # Auth, error, request-logger, security, metrics
+│   ├── migrations/          # SQL migration scripts (indexes, schema changes)
+│   ├── models/              # MySQL query layer (User, Task)
+│   ├── routes/              # API route definitions (auth, task, user, order)
+│   ├── services/            # Business logic (TaskService, OrderService)
+│   ├── utils/
+│   │   ├── logger.js        # Winston root + child loggers (auth, task, http)
+│   │   ├── apiResponse.js   # Standardized response helpers
+│   │   ├── appError.js      # Custom AppError class
+│   │   ├── catchAsync.js    # Async error wrapper
+│   │   ├── cache.js         # In-memory TTL cache
+│   │   ├── securityTrack.js # IP-based brute-force tracker
+│   │   └── securityDetector.js # XSS / SQL injection scanner
+│   ├── validators/          # express-validator schemas
+│   ├── app.js               # Express app setup & middleware stack
+│   └── server.js            # Entry point + lifecycle logging
+├── logs/
+│   ├── combined-YYYY-MM-DD.log  # All domains, all levels
+│   ├── error-YYYY-MM-DD.log     # Errors only
+│   ├── auth-YYYY-MM-DD.log      # Auth events (30-day retention)
+│   ├── task-YYYY-MM-DD.log      # Task CRUD events
+│   └── .gitkeep                 # Tracks folder in git
 ├── docker/
-│   └── mysql/init/      # MySQL initialization SQL
-├── tests/               # Unit & integration test suites
-├── .dockerignore        # Files excluded from Docker build context
-├── docker-compose.yml   # Multi-service orchestration (app + db)
-├── Dockerfile           # Multi-stage hardened build
-├── ARCHITECTURE.md      # Detailed architecture documentation
-├── .env                 # Environment variables (Docker Compose)
-└── package.json         # Dependencies & Scripts
+│   └── mysql/init/          # MySQL initialization SQL
+├── tests/                   # Unit & integration test suites
+├── .dockerignore            # Files excluded from Docker build context
+├── docker-compose.yml       # Multi-service orchestration (app + db + monitoring)
+├── Dockerfile               # Multi-stage hardened build
+├── ARCHITECTURE.md          # Detailed architecture documentation
+├── LOGGING_POLICY.md        # Logging standards, event catalogues, PII rules
+├── DISASTER_RECOVERY.md     # DB backup & restore procedures
+├── .env                     # Environment variables (Docker Compose)
+└── package.json             # Dependencies & npm scripts
 ```
 
 ---
@@ -635,6 +730,17 @@ taskflow-api/
 - Built a `restore.sh` script to easily recover database state from SQL dump files.
 - Documented automated backup scheduling using `cron`.
 - Added a comprehensive `DISASTER_RECOVERY.md` detailing step-by-step recovery scenarios (accidental deletion, volume corruption, complete host failure).
+
+#### Day 77: Domain-Isolated Winston Logging System
+
+- Rebuilt `src/utils/logger.js` with **domain child loggers** (`logger.auth`, `logger.task`, `logger.http`) so each domain writes to its own dedicated rotating file.
+- **Auto-creates `logs/`** directory on startup — no manual folder setup required.
+- Upgraded **`src/server.js`** with full startup lifecycle events: `startup_begin`, `db_connect_success`, `server_ready`, graceful SIGTERM/SIGINT shutdown with pool drain, and `shutdown_timeout` guard.
+- Upgraded **`src/middlewares/auth.middleware.js`** to emit structured auth events: missing token, expired token, invalid token, successful auth, role denial — all via `logger.auth`.
+- Upgraded **`src/controllers/task.controller.js`** to emit structured task events for every CRUD action via `logger.task`, including a `task.update.noop` warning when no valid fields are provided.
+- Upgraded **`src/middlewares/error.middleware.js`** to classify errors as `error.operational`, `error.programmer`, or `error.unclassified` with a shared `buildErrorMeta()` helper providing `requestId`, `userId`, `ip`, method, URL, and stack trace on every entry.
+- Auth logs retained for **30 days**; all log files gzip-compressed on rotation.
+- Published **`LOGGING_POLICY.md`** — 17-section document covering levels, domains, event catalogues, PII rules, retention policy, environment differences, and contributor guidelines.
 
 ---
 
