@@ -26,6 +26,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
   - **Resource Limits**: App container capped at 512 MB RAM / 0.5 CPU.
 - ** Error Handling**: Centralized global error handling with custom `AppError` class and async wrappers.
 - ** Structured Logging**: Domain-isolated Winston child loggers (`auth`, `task`, `http`) with daily rotation, gzip compression, and JSON output in production. See [`LOGGING_POLICY.md`](LOGGING_POLICY.md) for the full logging standard.
+- ** Performance Load Testing**: Advanced performance profiling and concurrency testing using `k6` targeting authentication and protected task routes, with a dedicated Grafana dashboard for real-time visualization of latency percentiles, throughput, and error rates.
 
 ---
 
@@ -36,6 +37,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 - **Database**: MySQL (using `mysql2` connection pooling)
 - **Validation**: Express Validator
 - **Logging**: Winston (structured JSON) + Morgan (dev HTTP) + `winston-daily-rotate-file` (rotation & compression)
+- **Load Testing**: Grafana k6
 - **Environment**: Dotenv
 - **Containerization**: Docker (multi-stage, Alpine) & Docker Compose
 
@@ -154,6 +156,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    - **TaskFlow API:** `http://localhost:5000/api/v1/health`
    - **Prometheus (Metrics):** `http://localhost:9090`
    - **Grafana (Live Dashboards):** `http://localhost:3000` *(Login: admin / admin)*
+     - *Note: Includes the **TaskFlow — K6 Load Test Dashboard** for real-time k6 visual performance profiling.*
    - **Alertmanager (Notifications):** `http://localhost:9093`
 
    > **Security note:** The container runs as a non-root user (`appuser`), with a read-only root filesystem and no-new-privileges enforced.
@@ -270,6 +273,61 @@ tail -f logs/auth-$(date +%F).log
 
 ---
 
+##  Load Testing
+
+TaskFlow features a comprehensive performance profiling and load testing suite built with **Grafana k6**. It includes targeted testing scripts for authentication, end-to-end task operations, and sudden traffic surges (spike testing), along with a dedicated Grafana dashboard for real-time visualization of metrics.
+
+### Test Scenarios
+
+| Test Script | Description | Configuration / Load Profile | Target Endpoints |
+| :--- | :--- | :--- | :--- |
+| [`auth-load.js`](tests/load/auth-load.js) | Authentication Stress Test | Concurrency ramp up to 50 VUs | `POST /api/v1/auth/login` |
+| [`tasks-load.js`](tests/load/tasks-load.js) | Full API Load Profile | Staged test: 10 VUs (warm-up) → 50 VUs (sustained) → 100 VUs (spike) → cool-down | Auth + Health + Task CRUD (`GET`, `POST`, `GET :id`, `PATCH`, `DELETE`) |
+| [`spike-test.js`](tests/load/spike-test.js) | Resilience & Recovery | Instant spike to 200 VUs for 1 minute | `/api/v1/health` |
+
+### Running the Load Tests
+
+#### 1. Local execution (Standard Console Output)
+
+To run a test and print results directly in your terminal, ensure the API server is running (`npm run dev`) and execute:
+
+```bash
+# Run the complete task load profile
+k6 run tests/load/tasks-load.js
+
+# Run the auth stress test
+k6 run tests/load/auth-load.js
+
+# Run the resilience spike test
+k6 run tests/load/spike-test.js
+```
+
+#### 2. Streaming Metrics to Grafana (via InfluxDB)
+
+To stream metrics in real time to the provided Grafana dashboard, you need to spin up an InfluxDB container on the same network:
+
+1. **Start InfluxDB** (v1.8 is recommended for native k6 integration):
+   ```bash
+   docker run -d -p 8086:8086 --name influxdb --network taskflow-network influxdb:1.8
+   ```
+
+2. **Execute k6 with InfluxDB Output**:
+   ```bash
+   k6 run -o influxdb=http://localhost:8086/k6 tests/load/tasks-load.js
+   ```
+
+3. **View Live Dashboard**:
+   - Access Grafana at `http://localhost:3000`.
+   - Go to **Dashboards** and select the **TaskFlow — K6 Load Test Dashboard**.
+   - Watch real-time metrics including **Active VUs**, **Request Rate**, **Response Time Percentiles (avg, med, p95, p99)**, **Failure Rates**, and **Per-Endpoint Latencies**.
+
+### Load Test Reports
+
+Each test run automatically generates a detailed JSON report saved locally under:
+`tests/load/reports/` (e.g., `tests/load/reports/load-test-report-YYYY-MM-DD-HH-MM-SS.json`).
+
+---
+
 ##  Project Structure
 
 ```text
@@ -300,8 +358,19 @@ taskflow-api/
 │   ├── task-YYYY-MM-DD.log      # Task CRUD events
 │   └── .gitkeep                 # Tracks folder in git
 ├── docker/
-│   └── mysql/init/          # MySQL initialization SQL
-├── tests/                   # Unit & integration test suites
+│   ├── mysql/init/          # MySQL initialization SQL
+│   └── grafana/             # Grafana configurations
+│       └── dashboards/      # Dashboards directory
+│           └── k6-load-test-dashboard.json # K6 load test visualization
+├── tests/                   # Unit, integration, and load test suites
+│   ├── factories/           # Test factories
+│   ├── integration/         # Integration test suites
+│   ├── load/                # K6 performance load scripts
+│   │   ├── auth-load.js     # Auth stress test
+│   │   ├── spike-test.js    # Traffic surge resilience test
+│   │   └── tasks-load.js    # Comprehensive staged load test
+│   ├── unit/                # Unit test suites
+│   └── setup.js             # Test database setup and cleaner
 ├── .dockerignore            # Files excluded from Docker build context
 ├── docker-compose.yml       # Multi-service orchestration (app + db + monitoring)
 ├── Dockerfile               # Multi-stage hardened build
@@ -741,6 +810,13 @@ taskflow-api/
 - Upgraded **`src/middlewares/error.middleware.js`** to classify errors as `error.operational`, `error.programmer`, or `error.unclassified` with a shared `buildErrorMeta()` helper providing `requestId`, `userId`, `ip`, method, URL, and stack trace on every entry.
 - Auth logs retained for **30 days**; all log files gzip-compressed on rotation.
 - Published **`LOGGING_POLICY.md`** — 17-section document covering levels, domains, event catalogues, PII rules, retention policy, environment differences, and contributor guidelines.
+
+#### Day 78: K6 Load Testing & Performance Monitoring
+
+- **k6 Load Testing Suite**: Configured k6 for performance profiling and load testing of auth and protected endpoints (`tests/load/`).
+- **Test Scenarios**: Developed scripts for auth stress testing (`auth-load.js`), sudden spike resilience (`spike-test.js`), and staged full-API profiling (`tasks-load.js`).
+- **Live Visual Metrics**: Integrated metrics collection with InfluxDB and Grafana, provisioning a dedicated K6 Load Test Dashboard.
+- **Reports**: Auto-generates local execution JSON summaries on each performance run.
 
 ---
 
