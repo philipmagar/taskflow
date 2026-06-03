@@ -1,0 +1,379 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": true,
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["taskflow", "k6", "load-test"],
+  "title": "TaskFlow — K6 Load Test Dashboard",
+  "uid": "k6-load-test",
+  "version": 1,
+
+  "time": { "from": "now-30m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "InfluxDB-k6", "value": "InfluxDB-k6" },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "DS_INFLUXDB",
+        "options": [],
+        "query": "influxdb",
+        "refresh": 1,
+        "type": "datasource"
+      }
+    ]
+  },
+
+  "panels": [
+    {
+      "id": 1,
+      "title": "🚀 Virtual Users (VUs)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#5794F2" },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 100 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["last", "max"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"vus\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "legendFormat": "Active VUs"
+        }
+      ]
+    },
+
+    {
+      "id": 2,
+      "title": "📈 Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#73BF69" },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["last", "max", "mean"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "query": "SELECT non_negative_derivative(max(\"value\"), 1s) FROM \"http_reqs\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "legendFormat": "Requests/s"
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "title": "⏱️ HTTP Response Time (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 5,
+            "lineInterpolation": "smooth",
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 500 },
+              { "color": "red",    "value": 1000 }
+            ]
+          }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "p95" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#FF9830" } }] },
+          { "matcher": { "id": "byName", "options": "p99" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#F2495C" } }] },
+          { "matcher": { "id": "byName", "options": "avg" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#73BF69" } }] },
+          { "matcher": { "id": "byName", "options": "med" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#5794F2" } }] }
+        ]
+      },
+      "options": {
+        "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "legendFormat": "avg"
+        },
+        {
+          "query": "SELECT median(\"value\") FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B",
+          "legendFormat": "med"
+        },
+        {
+          "query": "SELECT percentile(\"value\", 95) FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "C",
+          "legendFormat": "p95"
+        },
+        {
+          "query": "SELECT percentile(\"value\", 99) FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "D",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+
+    {
+      "id": 4,
+      "title": "❌ HTTP Failure Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#F2495C" },
+          "custom": {
+            "drawStyle": "bars",
+            "barAlignment": 0,
+            "fillOpacity": 60,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "red",    "value": 0.01 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["last", "max"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"http_req_failed\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "legendFormat": "Failure Rate"
+        }
+      ]
+    },
+
+    {
+      "id": 5,
+      "title": "🔑 Login Response Time (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#B877D9" },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["mean", "p95", "max"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"login_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "legendFormat": "Login avg (ms)"
+        },
+        {
+          "query": "SELECT percentile(\"value\", 95) FROM \"login_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B",
+          "legendFormat": "Login p95 (ms)"
+        }
+      ]
+    },
+
+    {
+      "id": 6,
+      "title": "📋 Per-Endpoint Response Time",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 25 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 5,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"task_list_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A", "legendFormat": "GET /tasks"
+        },
+        {
+          "query": "SELECT mean(\"value\") FROM \"task_create_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B", "legendFormat": "POST /tasks"
+        },
+        {
+          "query": "SELECT mean(\"value\") FROM \"task_get_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "C", "legendFormat": "GET /tasks/:id"
+        },
+        {
+          "query": "SELECT mean(\"value\") FROM \"task_update_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "D", "legendFormat": "PATCH /tasks/:id"
+        },
+        {
+          "query": "SELECT mean(\"value\") FROM \"task_delete_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "E", "legendFormat": "DELETE /tasks/:id"
+        },
+        {
+          "query": "SELECT mean(\"value\") FROM \"health_check_duration\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "F", "legendFormat": "GET /health"
+        }
+      ]
+    },
+
+    {
+      "id": 7,
+      "title": "✅ Check Pass Rate",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 34 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red",    "value": null },
+              { "color": "yellow", "value": 0.95 },
+              { "color": "green",  "value": 0.99 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "query": "SELECT mean(\"value\") FROM \"checks\" WHERE $timeFilter",
+          "refId": "A",
+          "legendFormat": "Pass Rate"
+        }
+      ]
+    },
+
+    {
+      "id": 8,
+      "title": "📦 Data Received / Sent (bytes/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 34 },
+      "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "query": "SELECT non_negative_derivative(max(\"value\"), 1s) FROM \"data_received\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "legendFormat": "Data Received"
+        },
+        {
+          "query": "SELECT non_negative_derivative(max(\"value\"), 1s) FROM \"data_sent\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B",
+          "legendFormat": "Data Sent"
+        }
+      ]
+    }
+  ]
+}
