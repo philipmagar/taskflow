@@ -818,6 +818,16 @@ taskflow-api/
 - **Live Visual Metrics**: Integrated metrics collection with InfluxDB and Grafana, provisioning a dedicated K6 Load Test Dashboard.
 - **Reports**: Auto-generates local execution JSON summaries on each performance run.
 
+#### Day 79: Database & Load Test Performance Optimization
+
+- **Database Index Tuning**: Added composite covering indexes (`idx_tasks_user_created_at`, `idx_tasks_user_status_created_at`) for optimized sorting and filtering queries under load.
+- **Seed Data for Testing**: Added a default admin user in `docker/mysql/init/init.sql` to guarantee consistent load test credentials across fresh container spins.
+- **Shared-Token Load Test Architecture**: Refactored `tasks-load.js` to authenticate **once in `setup()`** and share the JWT across all VUs, eliminating redundant bcrypt hashing under high concurrency and removing the primary auth bottleneck.
+- **Configurable Rate Limiting**: Made `express-rate-limit` window and max values configurable via `RATE_LIMIT_WINDOW_MS` and `RATE_LIMIT_MAX` environment variables for flexible tuning.
+- **Security Whitelist for Load Testing**: Added `ALLOWED_IPS` environment variable support in both `securityTrack.js` (brute-force tracker) and the global rate limiter to exempt load-test runner IPs from blocking.
+- **Bcrypt Salt Round Optimization**: Reduced bcrypt salt rounds from 12 to 10 in `user.controller.js` to lower CPU cost during high-frequency registration without compromising security.
+- **Docker Infrastructure Fixes**: Set proper `uid`/`gid` and permissions on the tmpfs log mount; enabled Grafana debug logging for dashboard provisioning troubleshooting.
+
 ---
 
 
