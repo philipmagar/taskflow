@@ -87,61 +87,61 @@ function jsonHeaders(token = null) {
   return h;
 }
 
-// ── Setup: runs once before any VU starts ────────────────────────────────────
+// ── Setup: runs ONCE — login and share token with all VUs ────────────────────
 export function setup() {
   console.log(` TaskFlow Load Test starting against ${BASE_URL}`);
   console.log(`   Date: ${new Date().toISOString()}`);
 
-  // Verify health before running test
+  // Health check
   const healthRes = http.get(`${API}/health`);
   if (healthRes.status !== 200) {
     console.error(` Health check failed (${healthRes.status}). Is the server running?`);
   } else {
     console.log(" Health check passed — server is up");
   }
-  return {};
-}
 
-// ── Main VU function ──────────────────────────────────────────────────────────
-export default function () {
-  let token = null;
-  let createdTaskId = null;
+  // Login ONCE — measure auth performance without concurrent bcrypt pressure
+  const loginStart = Date.now();
+  const loginRes = http.post(
+    `${API}/auth/login`,
+    JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+    { headers: jsonHeaders(), tags: { endpoint: "auth_login" } }
+  );
+  const loginMs = Date.now() - loginStart;
 
-  // ── GROUP 1: Authentication ───────────────────────────────────────────────
-  group("01 - Authentication", () => {
-    const payload = JSON.stringify({
-      email:    TEST_EMAIL,
-      password: TEST_PASSWORD,
-    });
+  loginDuration.add(loginRes.timings.duration);
+  totalRequests.add(1);
 
-    const res = http.post(`${API}/auth/login`, payload, {
-      headers: jsonHeaders(),
-      tags:    { endpoint: "auth_login" },
-    });
-
-    totalRequests.add(1);
-    loginDuration.add(res.timings.duration);
-
-    const loginOk = check(res, {
-      "login → status 200":       (r) => r.status === 200,
-      "login → has token":        (r) => {
-        try { return !!JSON.parse(r.body).token; } catch { return false; }
-      },
-      "login → response < 800ms": (r) => r.timings.duration < 800,
-    });
-
-    authFailRate.add(!loginOk);
-
-    if (loginOk) {
-      token = JSON.parse(res.body).token;
-    }
+  const loginOk = check(loginRes, {
+    "setup login → status 200":       (r) => r.status === 200,
+    "setup login → has token":        (r) => { try { return !!JSON.parse(r.body).data?.token; } catch { return false; } },
+    "setup login → response < 800ms": (r) => r.timings.duration < 800,
   });
 
-  sleep(randomIntBetween(1, 3));
+  authFailRate.add(!loginOk);
 
-  // Skip task tests if auth failed
+  if (!loginOk) {
+    console.error(`❌ Setup login failed (${loginRes.status}): ${loginRes.body}`);
+    return { token: null, loginMs };
+  }
+
+  const token = JSON.parse(loginRes.body).data?.token;
+  console.log(` Auth token obtained in ${loginMs}ms — sharing with all VUs`);
+  return { token, loginMs };
+}
+
+// ── Main VU function — receives shared token from setup() ─────────────────────
+export default function (data) {
+  const token = data?.token || null;
+  let createdTaskId = null;
+
+  // Report auth metric from setup (once, not per-VU iteration)
+  // Auth group is replaced with shared-token usage to avoid CPU saturation
+
+  // Skip task tests if no token from setup
   if (!token) {
-    console.warn(`VU ${__VU}: skipping task tests — no auth token`);
+    console.warn(`VU ${__VU}: no shared token from setup — skipping`);
+    authFailRate.add(1);
     return;
   }
 

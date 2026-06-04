@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      GF_LOG_LEVEL: debug
     volumes:
       - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
@@ -47,7 +49,7 @@ services:
     read_only: true              # Root filesystem is read-only
     tmpfs:
       - /tmp                     # Allow writes to /tmp only
-      - /usr/src/app/logs        # Allow log writes
+      - /usr/src/app/logs:uid=1000,gid=1000,mode=1777        # Allow log writes with proper ownership/perms
     # ── Resource limits ──────────────────────────
     deploy:
       resources:

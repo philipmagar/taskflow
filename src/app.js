@@ -20,14 +20,22 @@ if (config.env === "development") {
 app.use(cors());
 app.use(helmet());
 
-// Rate Limiting
+// Rate Limiting — configurable via env vars for load testing
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // default 15 min
+  max: parseInt(process.env.RATE_LIMIT_MAX) || 100,                        // default 100 req
   message: {
     status: "fail",
     message: "Too many requests from this IP, please try again later"
-  }
+  },
+  skip: (req) => {
+    // Skip rate limiting for whitelisted IPs (load-test runners, CI)
+    const allowed = (process.env.ALLOWED_IPS || "")
+      .split(",")
+      .map(ip => ip.trim())
+      .filter(Boolean);
+    return allowed.includes(req.ip);
+  },
 });
 app.use("/api", limiter);
 
