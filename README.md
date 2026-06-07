@@ -838,6 +838,12 @@ taskflow-api/
 - **Security Hardening**: Audited parameterised SQL queries (zero string concatenation), secure password hashing (bcrypt), payload size limits, CORS, rate limiting, and the custom XSS/SQLi security detector.
 - **Production Readiness**: Generated the comprehensive `PRODUCTION_READINESS_REPORT.md` confirming the API is highly resilient against common failure scenarios and edge cases.
 
+#### Day 81: Dependency Security & CI/CD Enhancements
+
+- **Dependency Audit & Updates**: Performed an extensive `npm audit` and updated outdated packages (including updating `uuid` to v14) to maintain a zero-vulnerability baseline.
+- **Docker Image Security Review**: Integrated `aquasecurity/trivy-action` directly into the `.github/workflows/ci.yml` CI/CD pipeline.
+- **Automated Build Blocking**: Configured the Trivy scanner to automatically fail pull requests and branch merges if **CRITICAL** severity vulnerabilities are discovered in the built Docker image (OS or libraries).
+
 ---
 
 ## License
