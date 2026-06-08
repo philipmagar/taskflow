@@ -59,58 +59,20 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
    ```
 
 3. **Environment Setup**:
-   The application uses environment-specific `.env` files. Create the following files in the root directory:
+   The application uses environment-specific `.env` files. To get started quickly:
 
-   **`.env`** (for Docker Compose and local overrides):
-   ```env
-   PORT=5000
-   NODE_ENV=development
-   DB_HOST=db
-   DB_USER=root
-   DB_PASSWORD=REMOVED
-   DB_NAME=taskflow_db
-   JWT_SECRET=your_secret_key
-   JWT_EXPIRES_IN=1d
-   MYSQL_ROOT_PASSWORD=REMOVED
-   MYSQL_DATABASE=taskflow_db
+   ```bash
+   cp .env.example .env
+   cp .env.example .env.development
    ```
+   
+   Update the created files with your own secrets. 
+   - **`.env`** is used by Docker Compose.
+   - **`.env.development`** is used for local Node.js development.
+   - **`.env.production`** is used for production.
+   - **`.env.test`** is used for testing.
 
-   **`.env.development`** (for local development, connecting to Docker DB on port 3307):
-   ```env
-   PORT=5000
-   DB_HOST=localhost
-   DB_PORT=3307
-   DB_USER=root
-   DB_PASSWORD=rootpassword
-   DB_NAME=taskflow_db
-   JWT_SECRET=REMOVED
-   JWT_EXPIRES_IN=1d
-   NODE_ENV=development
-   ```
-
-   **`.env.test`** (for running tests):
-   ```env
-   PORT=5001
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_test_password
-   DB_NAME=taskflow_test_db
-   JWT_SECRET=your_test_secret_key
-   JWT_EXPIRES_IN=1h
-   NODE_ENV=test
-   ```
-
-   **`.env.production`** (template for production):
-   ```env
-   PORT=5000
-   DB_HOST=your_prod_db_host
-   DB_USER=your_prod_db_user
-   DB_PASSWORD=your_prod_db_password
-   DB_NAME=taskflow_db
-   JWT_SECRET=your_secure_prod_key
-   JWT_EXPIRES_IN=7d
-   NODE_ENV=production
-   ```
+   > **Security Note:** All `.env.*` files (except `.env.example`) are correctly ignored by Git. See [`SECRETS_POLICY.md`](SECRETS_POLICY.md) for full details on rotation and CI/CD secrets handling.
 
    The application uses a **Centralized Config Loader** (`src/config/config.js`) to automatically load the correct file based on the `NODE_ENV` environment variable.
 
@@ -843,6 +805,13 @@ taskflow-api/
 - **Dependency Audit & Updates**: Performed an extensive `npm audit` and updated outdated packages (including updating `uuid` to v14) to maintain a zero-vulnerability baseline.
 - **Docker Image Security Review**: Integrated `aquasecurity/trivy-action` directly into the `.github/workflows/ci.yml` CI/CD pipeline.
 - **Automated Build Blocking**: Configured the Trivy scanner to automatically fail pull requests and branch merges if **CRITICAL** severity vulnerabilities are discovered in the built Docker image (OS or libraries).
+
+#### Day 82: Proper Secret Management Strategy
+
+- **Secret Decoupling**: Refactored environment configuration to rely on a template `.env.example` file instead of committing weak boilerplate secrets.
+- **Strong Secret Generation**: Searched and replaced weak database passwords and development/production JWT keys across `.env`, `.env.development`, and `.env.production` with secure, cryptographically generated strings.
+- **Gitignore Auditing**: Ensured that `.env` and `.env.*` files are properly ignored in `.gitignore`, while explicitly unignoring `!.env.example`.
+- **Policy Documentation**: Authored [`SECRETS_POLICY.md`](SECRETS_POLICY.md) detailing rigorous guidelines for local development secrets, isolation of CI test secrets, secure storage of CD pipeline SSH keys in GitHub Secrets, and comprehensive key rotation and incident response procedures.
 
 ---
 
