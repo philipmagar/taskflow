@@ -27,6 +27,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 - ** Error Handling**: Centralized global error handling with custom `AppError` class and async wrappers.
 - ** Structured Logging**: Domain-isolated Winston child loggers (`auth`, `task`, `http`) with daily rotation, gzip compression, and JSON output in production. See [`LOGGING_POLICY.md`](LOGGING_POLICY.md) for the full logging standard.
 - ** Performance Load Testing**: Advanced performance profiling and concurrency testing using `k6` targeting authentication and protected task routes, with a dedicated Grafana dashboard for real-time visualization of latency percentiles, throughput, and error rates.
+- ** Threat Modeling**: Formal STRIDE-based threat model ([`THREAT_MODEL.md`](THREAT_MODEL.md)) covering asset inventory, threat actor profiling, attack surface mapping, trust boundary analysis, and a scored risk matrix with prioritized mitigations.
 
 ---
 
@@ -337,8 +338,10 @@ taskflow-api/
 ├── docker-compose.yml       # Multi-service orchestration (app + db + monitoring)
 ├── Dockerfile               # Multi-stage hardened build
 ├── ARCHITECTURE.md          # Detailed architecture documentation
+├── THREAT_MODEL.md          # STRIDE threat model, risk matrix & mitigations
 ├── LOGGING_POLICY.md        # Logging standards, event catalogues, PII rules
 ├── DISASTER_RECOVERY.md     # DB backup & restore procedures
+├── SECRETS_POLICY.md        # Secret management & rotation policy
 ├── .env                     # Environment variables (Docker Compose)
 └── package.json             # Dependencies & npm scripts
 ```
@@ -820,6 +823,18 @@ taskflow-api/
 - **Trivy Image Scan**: Executed an extensive vulnerability scan on the compiled Docker image using Aquasec Trivy, confirming the absence of any `HIGH` or `CRITICAL` vulnerabilities.
 - **Branch Protection Policy**: Established and documented core branch protection concepts, enforcing PR reviews and passing CI checks before merging into production pipelines.
 - **Report Generated**: Created a comprehensive `supply_chain_security_report.md` detailing all audit findings and security postures.
+
+#### Day 84: STRIDE Threat Model & Risk Analysis
+
+- **Asset Identification**: Catalogued 10 critical-to-medium assets including JWT secrets, database credentials, user PII, task data, CI/CD secrets, and the unauthenticated metrics endpoint.
+- **Threat Actor Profiling**: Identified 5 threat actor categories — external attackers, malicious authenticated users, insider threats, supply chain attackers, and automated bots.
+- **Attack Surface Mapping**: Mapped 10+ API endpoints, 6 infrastructure surfaces (Docker, MySQL, Grafana, Prometheus, Alertmanager, SSH), and 5 data input vectors with gap analysis.
+- **Trust Boundary Analysis**: Documented 5 trust boundaries (TLS termination, reverse proxy, authentication, data access, CI/CD) with breach-impact assessments.
+- **STRIDE Analysis**: Conducted full analysis across all 6 categories — identified 21 threats including open CORS policy (Spoofing), SQL string interpolation in sort (Tampering), missing registration audit logs (Repudiation), unauthenticated `/metrics` endpoint (Information Disclosure), unbounded cache size (Denial of Service), and CD pipeline integrity gaps (Elevation of Privilege).
+- **Risk Matrix**: Scored all threats using Likelihood × Impact methodology; identified 4 critical, 3 high, 6 medium, and 2 low priority risks.
+- **Mitigation Roadmap**: Produced 17 prioritized recommendations with direct threat-to-control traceability.
+- **Controls Audit**: Verified 24 existing security controls already in place across middleware, container, CI/CD, and application layers.
+- **Documentation**: Published comprehensive [`THREAT_MODEL.md`](THREAT_MODEL.md) for academic and operational reference.
 
 ---
 
