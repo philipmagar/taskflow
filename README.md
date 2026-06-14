@@ -9,6 +9,7 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 - **Load Testing**: Advanced performance profiling using k6.
 - **Structured Logging**: Domain-isolated Winston child loggers.
 - **Containerization**: Hardened multi-stage Docker builds.
+- **Horizontal Scaling & Load Balancing**: Dynamic API scaling via Docker with NGINX and HAProxy integration.
 
 ## Architecture
 
@@ -16,9 +17,9 @@ A robust, secure, and scalable Task Management API built with Node.js, Express, 
 ```text
 Client
  ↓
-NGINX
+NGINX / HAProxy
  ↓
-Node API
+Node API (Scaled Replicas)
  ↓
 MySQL
 ```
@@ -81,6 +82,6 @@ Formal STRIDE-based threat model covering asset inventory, threat actor profilin
 *(Add relevant screenshots of Grafana dashboards and API usage here)*
 
 ## Future Improvements
-- Implement Horizontal Scaling (1 → 3 → 10)
-- Advanced Load Balancing techniques (NGINX/HAProxy)
+- Multi-region database replication for High Availability
+- Implement distributed caching (e.g., Redis)
 - See [`docs/scaling-strategy.md`](docs/scaling-strategy.md) for scaling plans.
