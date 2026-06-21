@@ -78,9 +78,6 @@ MySQL
 ## Threat Model
 Formal STRIDE-based threat model covering asset inventory, threat actor profiling, and attack surface mapping. See [`THREAT_MODEL.md`](THREAT_MODEL.md).
 
-## Screenshots
-*(Add relevant screenshots of Grafana dashboards and API usage here)*
-
 ## Future Improvements
 - Multi-region database replication for High Availability
 - Implement distributed caching (e.g., Redis)
